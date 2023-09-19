@@ -7,7 +7,6 @@ export const getLoginPage = () => `<!DOCTYPE html>
   <script src="https://unpkg.com/htmx.org@1.9.5"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    /* Minimal CSS for the flash effect */
     .flash {
       position: fixed;
       top: 0;
@@ -16,9 +15,33 @@ export const getLoginPage = () => `<!DOCTYPE html>
       height: 100vh;
       background-color: white;
       z-index: 9999;
-      opacity: 0.8;
+      opacity: 1;
       display: none;
     }
+
+    @keyframes floatUp {
+      0% {
+        transform: translateY(0) translateX(0);
+        opacity: 1;
+      }
+      25% {
+        transform: translateY(-15vh) translateX(7vw);
+      }
+      50% {
+        transform: translateY(-30vh) translateX(-7vw);
+      }
+      75% {
+        transform: translateY(-45vh) translateX(7vw);
+      }
+      100% {
+        transform: translateY(-100vh) translateX(0);
+        opacity: 0;
+      }
+    }
+    .float-away {
+      animation: floatUp 8s forwards;
+    }
+
   </style>
 </head>
 <body class="bg-gray-200 h-screen flex justify-center items-center">
@@ -26,7 +49,7 @@ export const getLoginPage = () => `<!DOCTYPE html>
 <div class="flash" id="flashEffect"></div>
 
 <form class="bg-white p-8 rounded-lg shadow-md w-96">
-  <div class="flex justify-center mb-6">
+  <div id="logo" class="flex justify-center mb-6">
     <img src="public/otus-logo.png" alt="Logo" class="h-16">
   </div>
   <div class="mb-4">
@@ -41,7 +64,7 @@ export const getLoginPage = () => `<!DOCTYPE html>
     <button type="submit" hx-post="/login" hx-swap="none" class="bg-blue-500 text-white w-full p-2 rounded-md hover:bg-blue-600">Login</button>
   </div>
   <div class="text-center">
-    <button hx-post="/signup" hx-target="closest body" class="text-blue-500 hover:underline">Signup</button>
+    <button type="button" hx-post="/signup" hx-target="closest body" hx-params="none" class="text-blue-500 hover:underline">Signup</button>
   </div>
 </form>
 
@@ -58,8 +81,8 @@ export const getLoginPage = () => `<!DOCTYPE html>
     audio.play();
   }
   function clearForm() {
-    document.getElementById('username').value = ''
-    document.getElementById('password').value = ''
+    document.getElementById('username').value = '';
+    document.getElementById('password').value = '';
   }
   document.body.addEventListener('failedLogin', (e)=>{
     playThunder();
@@ -71,7 +94,10 @@ export const getLoginPage = () => `<!DOCTYPE html>
   }
   document.body.addEventListener('successfulLogin', (e)=>{
     playSuccess();
-    setTimeout(()=>location.href = '/', 1500)
+    setTimeout(()=>location.href = '/', 1500);
+  })
+  document.getElementById('logo').addEventListener('click', function() {
+    this.classList.add('float-away');
   })
   console.log(\`
    ▄▄▄▄▄▄▄▄▄▄▄  ▄▄▄▄▄▄▄▄▄▄▄  ▄         ▄  ▄▄▄▄▄▄▄▄▄▄▄ 
@@ -109,7 +135,7 @@ export const getLoginPage = () => `<!DOCTYPE html>
   ▐░█▄▄▄▄▄▄▄▄▄ ▐░█▄▄▄▄▄█░█░▌▐░█▄▄▄▄▄▄▄▄▄  ▄▄▄▄▄▄▄▄▄█░▌
   ▐░░░░░░░░░░░▌ ▐░░░░░░░░░▌ ▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌
    ▀▀▀▀▀▀▀▀▀▀▀   ▀▀▀▀▀▀▀▀▀   ▀▀▀▀▀▀▀▀▀▀▀  ▀▀▀▀▀▀▀▀▀▀▀ 
-                                                      \`)
+                                                      \`);
 console.log('WW91IGhhdmUgZG9uZSB3ZWxsIHRvIGdldCB0aGlzIGZhci4gZFhObGNtNWhiV1U2SUhWdWNuVm1abXhsWkMxamFHOXZjMlZ5SUhCaGMzTjNiM0prT2lCemFXeHNhVzVsYzNNdGNtVndZWGxwYm1jSwo=');
 </script>
 </body>
