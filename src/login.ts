@@ -38,7 +38,7 @@ export const getLoginPage = () => `<!DOCTYPE html>
     <input type="password" id="password" name="password" class="p-2 w-full border rounded-md">
   </div>
   <div class="mb-4">
-    <button onclick="playThunder();clearForm();" class="bg-blue-500 text-white w-full p-2 rounded-md hover:bg-blue-600">Login</button>
+    <button onclick="playThunder(); clearForm();" class="bg-blue-500 text-white w-full p-2 rounded-md hover:bg-blue-600">Login</button>
   </div>
   <div class="text-center">
     <button hx-post="/signup" hx-target="closest body" class="text-blue-500 hover:underline">Signup</button>
@@ -69,16 +69,16 @@ export const getLoginPage = () => `<!DOCTYPE html>
 </html>
 `
 
-export const getSignup = (remaining: number = 11, dropRate_ms: number = 5000, jitter_ms: number = 4500) => {
+export const getSignup = (remaining: number = 13, dropRate_ms: number = 6000, jitter_ms: number = 4500) => {
   const jitterDirection = Math.floor(Math.random() * 2) == 0 ? -1 : 1;
   const delay = dropRate_ms + (jitter_ms * Math.random() * jitterDirection);
 
   console.log(`remaining ${typeof remaining} ${remaining}`)
   return remaining > 0 ? `
-    <div class="bg-white p-8 rounded-lg shadow-md w-96" hx-trigger="load delay:${delay}ms" hx-swap="outerHTML" hx-post="/signup" hx-vals="js:{remaining: ${--remaining}}">
+    <div class="bg-white p-8 rounded-lg shadow-md w-96" hx-trigger="load delay:${delay}ms" hx-swap="outerHTML" hx-post="/signup" hx-vals="js:{remaining: ${remaining-1}}">
       <div class="text-center text-xl mb-4">Waiting in line...</div>
       <div id="counter" class="text-center text-3xl mb-4">${remaining}</div>
-      <div class="text-center">Please wait.</div>
+      <div class="text-center">User(s) ahead of you</div>
     </div>
   `
   : `
