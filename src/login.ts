@@ -38,10 +38,10 @@ export const getLoginPage = () => `<!DOCTYPE html>
     <input type="password" id="password" name="password" class="p-2 w-full border rounded-md">
   </div>
   <div class="mb-4">
-    <button onclick="playThunder()" class="bg-blue-500 text-white w-full p-2 rounded-md hover:bg-blue-600">Login</button>
+    <button onclick="playThunder();clearForm();" class="bg-blue-500 text-white w-full p-2 rounded-md hover:bg-blue-600">Login</button>
   </div>
   <div class="text-center">
-    <button onclick="showSignup()" class="text-blue-500 hover:underline">Signup</button>
+    <button hx-post="/signup" hx-target="closest body" class="text-blue-500 hover:underline">Signup</button>
   </div>
 </div>
 
@@ -59,23 +59,31 @@ export const getLoginPage = () => `<!DOCTYPE html>
     audio.play();
   }
 
-  function showSignup() {
-    const container = document.querySelector('.bg-white');
-    container.innerHTML = '<div class="text-center text-xl mb-4">Waiting in line...</div><div id="counter" class="text-center text-3xl mb-4">10</div><div class="text-center">Please wait while we process your signup</div>';
-    
-    let counter = 10;
-    const countdown = setInterval(() => {
-      counter--;
-      document.getElementById('counter').innerText = counter;
-      if (counter === 0) {
-        clearInterval(countdown);
-        container.innerHTML = '<div class="text-center text-xl mb-4">Error</div><div class="text-center">Sorry, please try again later.</div>';
-        setTimeout(()=> location.reload(), 7500);
-      }
-    }, 1000);
+  function clearForm() {
+    document.getElementById('username').value = ''
+    document.getElementById('password').value = ''
   }
 </script>
 
 </body>
 </html>
 `
+
+export const getSignup = (remaining: number = 11, dropRate_ms: number = 5000, jitter_ms: number = 4500) => {
+  const jitterDirection = Math.floor(Math.random() * 2) == 0 ? -1 : 1;
+  const delay = dropRate_ms + (jitter_ms * Math.random() * jitterDirection);
+
+  console.log(`remaining ${typeof remaining} ${remaining}`)
+  return remaining > 0 ? `
+    <div class="bg-white p-8 rounded-lg shadow-md w-96" hx-trigger="load delay:${delay}ms" hx-swap="outerHTML" hx-post="/signup" hx-vals="js:{remaining: ${--remaining}}">
+      <div class="text-center text-xl mb-4">Waiting in line...</div>
+      <div id="counter" class="text-center text-3xl mb-4">${remaining}</div>
+      <div class="text-center">Please wait.</div>
+    </div>
+  `
+  : `
+    <div class="bg-white p-8 rounded-lg shadow-md w-96" hx-trigger="load delay:7500ms" hx-get="/" hx-target="closest body" hx-swap="outer html">
+      <div class="text-center text-xl mb-4">Error</div><div class="text-center">Sorry, please try again later.</div>
+    </div>
+  `;
+}
