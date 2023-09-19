@@ -38,7 +38,7 @@ export const getLoginPage = () => `<!DOCTYPE html>
     <input type="password" id="password" name="password" class="p-2 w-full border rounded-md">
   </div>
   <div class="mb-4">
-    <button onclick="playThunder(); clearForm();" class="bg-blue-500 text-white w-full p-2 rounded-md hover:bg-blue-600">Login</button>
+    <button hx-post="/login" hx-swap="none" class="bg-blue-500 text-white w-full p-2 rounded-md hover:bg-blue-600">Login</button>
   </div>
   <div class="text-center">
     <button hx-post="/signup" hx-target="closest body" class="text-blue-500 hover:underline">Signup</button>
@@ -54,17 +54,18 @@ export const getLoginPage = () => `<!DOCTYPE html>
       flash.style.display = 'none';
     }, 100);
 
-    // Play thunder sound (you'd need to provide a thunder sound file)
     const audio = new Audio('public/thunder.wav');
     audio.play();
   }
-
   function clearForm() {
     document.getElementById('username').value = ''
     document.getElementById('password').value = ''
   }
+  document.body.addEventListener('failedLogin', (e)=>{
+    playThunder();
+    clearForm();
+  })
 </script>
-
 </body>
 </html>
 `

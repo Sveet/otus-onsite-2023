@@ -7,6 +7,7 @@ const app = new Elysia()
 .use(staticPlugin())
 .use(html())
 .get("/", ({ html }) => html(getLoginPage()))
+.post("/login", () => new Response(JSON.stringify({}),{headers: {'HX-Trigger': 'failedLogin'}}))
 .post("/signup", ({ html, body: {remaining} })=> {
   console.log(`remaining ${typeof remaining} ${remaining}`)
   return html(getSignup(remaining))
