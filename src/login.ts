@@ -25,7 +25,7 @@ export const getLoginPage = () => `<!DOCTYPE html>
 
 <div class="flash" id="flashEffect"></div>
 
-<div class="bg-white p-8 rounded-lg shadow-md w-96">
+<form class="bg-white p-8 rounded-lg shadow-md w-96">
   <div class="flex justify-center mb-6">
     <img src="public/otus-logo.png" alt="Logo" class="h-16">
   </div>
@@ -38,12 +38,12 @@ export const getLoginPage = () => `<!DOCTYPE html>
     <input type="password" id="password" name="password" class="p-2 w-full border rounded-md">
   </div>
   <div class="mb-4">
-    <button hx-post="/login" hx-swap="none" class="bg-blue-500 text-white w-full p-2 rounded-md hover:bg-blue-600">Login</button>
+    <button type="submit" hx-post="/login" hx-swap="none" class="bg-blue-500 text-white w-full p-2 rounded-md hover:bg-blue-600">Login</button>
   </div>
   <div class="text-center">
     <button hx-post="/signup" hx-target="closest body" class="text-blue-500 hover:underline">Signup</button>
   </div>
-</div>
+</form>
 
 <script>
   function playThunder() {
@@ -65,6 +65,52 @@ export const getLoginPage = () => `<!DOCTYPE html>
     playThunder();
     clearForm();
   })
+  function playSuccess() {
+    const audio = new Audio('public/success.wav');
+    audio.play();
+  }
+  document.body.addEventListener('successfulLogin', (e)=>{
+    playSuccess();
+    setTimeout(()=>location.href = '/', 1500)
+  })
+  console.log(\`
+   ▄▄▄▄▄▄▄▄▄▄▄  ▄▄▄▄▄▄▄▄▄▄▄  ▄         ▄  ▄▄▄▄▄▄▄▄▄▄▄ 
+  ▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌▐░▌       ▐░▌▐░░░░░░░░░░░▌
+  ▐░█▀▀▀▀▀▀▀█░▌ ▀▀▀▀█░█▀▀▀▀ ▐░▌       ▐░▌▐░█▀▀▀▀▀▀▀▀▀ 
+  ▐░▌       ▐░▌     ▐░▌     ▐░▌       ▐░▌▐░▌          
+  ▐░▌       ▐░▌     ▐░▌     ▐░▌       ▐░▌▐░█▄▄▄▄▄▄▄▄▄ 
+  ▐░▌       ▐░▌     ▐░▌     ▐░▌       ▐░▌▐░░░░░░░░░░░▌
+  ▐░▌       ▐░▌     ▐░▌     ▐░▌       ▐░▌ ▀▀▀▀▀▀▀▀▀█░▌
+  ▐░▌       ▐░▌     ▐░▌     ▐░▌       ▐░▌          ▐░▌
+  ▐░█▄▄▄▄▄▄▄█░▌     ▐░▌     ▐░█▄▄▄▄▄▄▄█░▌ ▄▄▄▄▄▄▄▄▄█░▌
+  ▐░░░░░░░░░░░▌     ▐░▌     ▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌
+   ▀▀▀▀▀▀▀▀▀▀▀       ▀       ▀▀▀▀▀▀▀▀▀▀▀  ▀▀▀▀▀▀▀▀▀▀▀ 
+                                                      
+   ▄▄▄▄▄▄▄▄▄▄▄       ▄▄▄▄▄▄▄▄▄▄▄       ▄▄▄▄▄▄▄▄▄▄▄    
+  ▐░░░░░░░░░░░▌     ▐░░░░░░░░░░░▌     ▐░░░░░░░░░░░▌   
+  ▐░█▀▀▀▀▀▀▀▀▀       ▀▀▀▀█░█▀▀▀▀      ▐░█▀▀▀▀▀▀▀▀▀    
+  ▐░▌                    ▐░▌          ▐░▌             
+  ▐░▌                    ▐░▌          ▐░█▄▄▄▄▄▄▄▄▄    
+  ▐░▌                    ▐░▌          ▐░░░░░░░░░░░▌   
+  ▐░▌                    ▐░▌          ▐░█▀▀▀▀▀▀▀▀▀    
+  ▐░▌                    ▐░▌          ▐░▌             
+  ▐░█▄▄▄▄▄▄▄▄▄           ▐░▌          ▐░▌             
+  ▐░░░░░░░░░░░▌          ▐░▌          ▐░▌             
+   ▀▀▀▀▀▀▀▀▀▀▀            ▀            ▀              
+                                                      
+   ▄▄▄▄▄▄▄▄▄▄▄   ▄▄▄▄▄▄▄▄▄   ▄▄▄▄▄▄▄▄▄▄▄  ▄▄▄▄▄▄▄▄▄▄▄ 
+  ▐░░░░░░░░░░░▌ ▐░░░░░░░░░▌ ▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌
+   ▀▀▀▀▀▀▀▀▀█░▌▐░█░█▀▀▀▀▀█░▌ ▀▀▀▀▀▀▀▀▀█░▌ ▀▀▀▀▀▀▀▀▀█░▌
+            ▐░▌▐░▌▐░▌    ▐░▌          ▐░▌          ▐░▌
+            ▐░▌▐░▌ ▐░▌   ▐░▌          ▐░▌ ▄▄▄▄▄▄▄▄▄█░▌
+   ▄▄▄▄▄▄▄▄▄█░▌▐░▌  ▐░▌  ▐░▌ ▄▄▄▄▄▄▄▄▄█░▌▐░░░░░░░░░░░▌
+  ▐░░░░░░░░░░░▌▐░▌   ▐░▌ ▐░▌▐░░░░░░░░░░░▌ ▀▀▀▀▀▀▀▀▀█░▌
+  ▐░█▀▀▀▀▀▀▀▀▀ ▐░▌    ▐░▌▐░▌▐░█▀▀▀▀▀▀▀▀▀           ▐░▌
+  ▐░█▄▄▄▄▄▄▄▄▄ ▐░█▄▄▄▄▄█░█░▌▐░█▄▄▄▄▄▄▄▄▄  ▄▄▄▄▄▄▄▄▄█░▌
+  ▐░░░░░░░░░░░▌ ▐░░░░░░░░░▌ ▐░░░░░░░░░░░▌▐░░░░░░░░░░░▌
+   ▀▀▀▀▀▀▀▀▀▀▀   ▀▀▀▀▀▀▀▀▀   ▀▀▀▀▀▀▀▀▀▀▀  ▀▀▀▀▀▀▀▀▀▀▀ 
+                                                      \`)
+console.log('WW91IGhhdmUgZG9uZSB3ZWxsIHRvIGdldCB0aGlzIGZhci4gZFhObGNtNWhiV1U2SUhWdWNuVm1abXhsWkMxamFHOXZjMlZ5SUhCaGMzTjNiM0prT2lCemFXeHNhVzVsYzNNdGNtVndZWGxwYm1jSwo=');
 </script>
 </body>
 </html>
@@ -74,7 +120,6 @@ export const getSignup = (remaining: number = 13, dropRate_ms: number = 6000, ji
   const jitterDirection = Math.floor(Math.random() * 2) == 0 ? -1 : 1;
   const delay = dropRate_ms + (jitter_ms * Math.random() * jitterDirection);
 
-  console.log(`remaining ${typeof remaining} ${remaining}`)
   return remaining > 0 ? `
     <div class="bg-white p-8 rounded-lg shadow-md w-96" hx-trigger="load delay:${delay}ms" hx-swap="outerHTML" hx-post="/signup" hx-vals="js:{remaining: ${remaining - 1}}">
       <div class="text-center text-xl mb-4">Waiting in line...</div>
@@ -87,4 +132,8 @@ export const getSignup = (remaining: number = 13, dropRate_ms: number = 6000, ji
       <div class="text-center text-xl mb-4">Error</div><div class="text-center">Sorry, please try again later.</div>
     </div>
   `;
+}
+
+export const validateLogin = (username: string, password: string) => {
+  return username === 'unruffled-chooser' && password === 'silliness-repaying'
 }

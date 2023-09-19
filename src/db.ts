@@ -14,14 +14,9 @@ db.exec(`
 export type User = {
   id: string;
   stage: number;
-  created: Date;
-  updated: Date;
+  created?: Date;
+  updated?: Date;
 };
-
-export function createUser(user: Omit<User, 'created' | 'updated'>): void {
-  const stmt = db.prepare("INSERT INTO users (id, stage) VALUES (?, ?)");
-  stmt.run(user.id, user.stage);
-}
 
 export function getUser(id: string): User | undefined {
   const stmt = db.prepare("SELECT * FROM users WHERE id = ?");
@@ -30,8 +25,8 @@ export function getUser(id: string): User | undefined {
     return {
       id: user.id,
       stage: user.stage,
-      created: new Date(user.created),
-      updated: new Date(user.updated),
+      created: new Date(user.created!),
+      updated: new Date(user.updated!),
     };
   }
   return undefined;
@@ -43,15 +38,31 @@ export function getAllUsers(): User[] {
   return users.map(user => ({
     id: user.id,
     stage: user.stage,
-    created: new Date(user.created),
-    updated: new Date(user.updated),
+    created: new Date(user.created!),
+    updated: new Date(user.updated!),
   }));
+}
+
+export function createUser(user: Omit<User, 'created' | 'updated'>): void {
+  const stmt = db.prepare("INSERT INTO users (id, stage) VALUES (?, ?)");
+  stmt.run(user.id, user.stage);
 }
 
 export function updateUser(user: User): void {
   const stmt = db.prepare("UPDATE users SET stage = ?, updated = CURRENT_TIMESTAMP WHERE id = ?");
   stmt.run(user.stage, user.id);
 }
+
+export function upsertUser(user: User): void {
+  user.created ??= new Date();
+  user.updated ??= new Date();
+  const stmt = db.prepare(`
+      INSERT INTO users (id, stage, created, updated) VALUES (?, ?, ?, ?)
+      ON CONFLICT(id) DO UPDATE SET stage = excluded.stage, updated = CURRENT_TIMESTAMP
+  `);
+  stmt.run(user.id, user.stage, user.created.toISOString(), user.updated.toISOString());
+}
+
 
 export function deleteUser(id: string): void {
   const stmt = db.prepare("DELETE FROM users WHERE id = ?");
