@@ -76,13 +76,13 @@ export const getSignup = (remaining: number = 13, dropRate_ms: number = 6000, ji
 
   console.log(`remaining ${typeof remaining} ${remaining}`)
   return remaining > 0 ? `
-    <div class="bg-white p-8 rounded-lg shadow-md w-96" hx-trigger="load delay:${delay}ms" hx-swap="outerHTML" hx-post="/signup" hx-vals="js:{remaining: ${remaining-1}}">
+    <div class="bg-white p-8 rounded-lg shadow-md w-96" hx-trigger="load delay:${delay}ms" hx-swap="outerHTML" hx-post="/signup" hx-vals="js:{remaining: ${remaining - 1}}">
       <div class="text-center text-xl mb-4">Waiting in line...</div>
       <div id="counter" class="text-center text-3xl mb-4">${remaining}</div>
       <div class="text-center">User(s) ahead of you</div>
     </div>
   `
-  : `
+    : `
     <div class="bg-white p-8 rounded-lg shadow-md w-96" hx-trigger="load delay:7500ms" hx-get="/" hx-target="closest body" hx-swap="outer html">
       <div class="text-center text-xl mb-4">Error</div><div class="text-center">Sorry, please try again later.</div>
     </div>
