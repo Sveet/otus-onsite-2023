@@ -102,9 +102,9 @@ export const getLoginPage = () => `<!DOCTYPE html>
   })
   document.getElementById('logo').addEventListener('click', function() {
     this.classList.add('float-away');
-    setTimeout(()=>playToink(), 1900)
-    setTimeout(()=>playToink(), 3900)
-    setTimeout(()=>this.classList.remove('float-away'), 20000)
+    setTimeout(()=>playToink(), 2100)
+    setTimeout(()=>playToink(), 4100)
+    setTimeout(()=>this.classList.remove('float-away'), 16000)
   })
   console.log(\`
    ▄▄▄▄▄▄▄▄▄▄▄  ▄▄▄▄▄▄▄▄▄▄▄  ▄         ▄  ▄▄▄▄▄▄▄▄▄▄▄ 
@@ -161,7 +161,7 @@ export const getSignup = (remaining: number = 13, dropRate_ms: number = 6000, ji
     </div>
   `
     : `
-    <div class="bg-white p-8 rounded-lg shadow-md w-96" hx-trigger="load delay:7500ms" hx-get="/" hx-target="closest body" hx-swap="outer html">
+    <div class="bg-white p-8 rounded-lg shadow-md w-96" hx-trigger="load delay:5000ms" hx-get="/" hx-target="closest body" hx-swap="outer html">
       <div class="text-center text-xl mb-4">Error</div><div class="text-center">Sorry, please try again later.</div>
     </div>
   `;
