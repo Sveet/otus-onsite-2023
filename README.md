@@ -2,7 +2,7 @@
 
 ## Overview
 
-This project was designed to run on a Raspberry Pi 4B.
+This project was designed to run on a Raspberry Pi 3B.
 
 The server is written using the BETH stack: Bun, ElysiaJS, Turso (SQLite), and HTMX.
 
@@ -28,10 +28,48 @@ bun dev     // run in development mode (hot reload)
 ## Configuring Raspberry Pi
 There are other valid methods to configure this codebase.
 
-Below are my notes for my Raspberry Pi 4B running Raspberry Pi OS 11. The intended audience is my future self who may need to undo or repeat these efforts.
+Below are my notes for my Raspberry Pi 3B running Raspberry Pi OS 11. The intended audience is my future self who may need to undo or repeat these efforts.
 
-### Installation
-Install `hostapd` and `dnsmasq`
+### Setup `systemd` to run this codebase
+Create/edit service file
+```bash
+sudo vi /etc/systemd/system/otus-onsite-2023.service
+```
+Contents
+```
+[Unit]
+Description=Otus CTF 2023
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/env bun start
+Restart=always
+User=j
+Group=users
+Environment=PATH=/home/j/.bun/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+WorkingDirectory=/home/j/Projects/otus-onsite-2023
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Reload `systemd`
+```bash
+sudo systemctl daemon-reload
+```
+
+Enable and Start the Service
+```bash
+sudo systemctl enable otus-onsite-2023.service
+sudo systemctl start otus-onsite-2023.service
+```
+
+Check status of Service
+```bash
+sudo systemctl status otus-onsite-2023.service
+```
+
+### Install `hostapd` and `dnsmasq`
 ```bash
 sudo apt install hostapd dnsmasq
 ```
@@ -151,20 +189,3 @@ Restart the system
 ```bash
 sudo reboot
 ```
-
-## Notes
-Originally this was intended for a Raspberry Pi 3B running Raspberry Pi OS 11. During integration testing, I found that Bun only supports 64bit architectures. I joined the Bun Discord and asked my question, and was fortunate to have `dave` from the Core Team respond quickly.
-
-> Sveet:
->
-> I did not notice at first, but Bun only officially supports 64bit architectures. Is this due to a technical limitation?
->
-> I desire to run Bun on a Raspberry Pi 3B which is unfortunately arm7l (32bit). I found build instructions in the Development section of the docs. Would it be possible for me to build bun with arm7l as the target, or would I be wasting my time?
-
-> dave:
->
-> you could try but i feel like youll quickly run into 64bit assumptions
->
-> there also isnt a prebuilt webkit so itll take way longer + there arent clear instructions for webkit (its not submodule cloned by default)
-
-Luckily this was early enough in the project that a Raspberry Pi 4B could be delivered.
