@@ -15,7 +15,7 @@ const app = new Elysia()
       user = {id: userId, stage: 0}
       createUser(user);
     }
-    
+
     switch(user.stage){
       case 0:
         set.redirect = '/login'
@@ -31,7 +31,6 @@ const app = new Elysia()
   .post("/login", ({ set, body, headers }) => {
     const username = (body as any)?.username;
     const password = (body as any)?.password;
-    const playedSuccess = (body as any)?.success
     if(!validateLogin(username, password)){
       set.headers = { 'HX-Trigger': 'failedLogin' }
     } else {
@@ -43,7 +42,7 @@ const app = new Elysia()
       set.headers = { 'HX-Trigger': 'successfulLogin' }
     }
   })
-  .post("/signup", ({ html, body: { remaining } }) => html(getSignup(remaining)), {
+  .post("/signup", ({ html, body: { remaining } }) => html(getSignup(remaining ?? (Math.floor(Math.random() * 10)+5))), {
     body: t.Object({ remaining: t.Optional(t.Number()) }),
     transform: ({ body }) => { if (body.remaining) body.remaining = +body.remaining }
   })

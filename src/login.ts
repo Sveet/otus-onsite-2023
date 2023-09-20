@@ -92,12 +92,18 @@ export const getLoginPage = () => `<!DOCTYPE html>
     const audio = new Audio('public/success.wav');
     audio.play();
   }
+  function playToink() {
+    const audio = new Audio('public/toink.mp3');
+    audio.play();
+  }
   document.body.addEventListener('successfulLogin', (e)=>{
     playSuccess();
     setTimeout(()=>location.href = '/', 1500);
   })
   document.getElementById('logo').addEventListener('click', function() {
     this.classList.add('float-away');
+    setTimeout(()=>playToink(), 1900)
+    setTimeout(()=>playToink(), 3900)
     setTimeout(()=>this.classList.remove('float-away'), 20000)
   })
   console.log(\`
