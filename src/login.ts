@@ -4,8 +4,8 @@ export const getLoginPage = () => `<!DOCTYPE html>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login Page</title>
-  <script src="https://unpkg.com/htmx.org@1.9.5"></script>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/public/htmx@1.9.5.min.js"></script>
+  <script src="/public/tailwind@3.3.3.min.js"></script>
   <style>
     .flash {
       position: fixed;
