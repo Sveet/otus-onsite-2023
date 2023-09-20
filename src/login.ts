@@ -98,6 +98,7 @@ export const getLoginPage = () => `<!DOCTYPE html>
   })
   document.getElementById('logo').addEventListener('click', function() {
     this.classList.add('float-away');
+    setTimeout(()=>this.classList.remove('float-away'), 20000)
   })
   console.log(\`
    ▄▄▄▄▄▄▄▄▄▄▄  ▄▄▄▄▄▄▄▄▄▄▄  ▄         ▄  ▄▄▄▄▄▄▄▄▄▄▄ 
