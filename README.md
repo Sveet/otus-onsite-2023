@@ -21,8 +21,8 @@ bun install
 ### Running the Server
 Use `bun` to run the project
 ```bash
-bun run   // run in production mode
-bun dev   // run in development mode (hot reload)
+bun start   // run in production mode
+bun dev     // run in development mode (hot reload)
 ```
 
 ## Configuring Raspberry Pi
@@ -30,6 +30,11 @@ There are other valid methods to configure this codebase.
 
 Below are my notes for my Raspberry Pi 3B running Raspberry Pi OS 11. The intended audience is my future self who may need to undo or repeat these efforts.
 
+### Installation
+Install `hostapd` and `dnsmasq`
+```bash
+sudo apt install hostapd dnsmasq
+```
 ### hostapd - Host Access Point Daemon
 
 #### Configure Access Point
@@ -113,5 +118,36 @@ sudo iptables -A FORWARD -i eth0 -o wlan0 -j ACCEPT
 ```
 Redirect all traffic to the captive portal
 ```bash
-sudo iptables -t nat -A PREROUTING -i wlan0 -p tcp --dport 80 -j DNAT --to-destination 10.0.0.1:8080
+sudo iptables -t nat -A PREROUTING -i wlan0 -p tcp --dport 80 -j DNAT --to-destination 10.0.0.1:3000
+```
+
+#### Save iptables rules & load on boot
+Save the current rules to disk
+```bash
+sudo sh -c "iptables-save > /etc/iptables.ipv4.nat"
+```
+Add a network interfaces file
+```bash
+sudo vi /etc/network/interfaces.d/iptables-setup
+```
+Contents of `/etc/network/interfaces.d/iptables-setup`
+```
+pre-up iptables-restore < /etc/iptables.ipv4.nat
+```
+Set as executable
+```bash
+sudo chmod +x /etc/network/interfaces.d/iptables-setup
+```
+
+### Enable & Start Services
+Enable and start `hostapd` and `dnsmasq`
+```bash
+sudo systemctl enable hostapd
+sudo systemctl enable dnsmasq
+sudo systemctl start hostapd
+sudo systemctl start dnsmasq
+```
+Restart the system
+```bash
+sudo reboot
 ```
