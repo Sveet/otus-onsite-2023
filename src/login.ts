@@ -1,4 +1,31 @@
-export const getLoginPage = () => `<!DOCTYPE html>
+import { Elysia, t } from "elysia";
+import { html } from "@elysiajs/html";
+import { User, upsertUser } from "./db";
+
+const login = new Elysia()
+.use(html())
+.get("/login", ({ html }) => html(getLoginPage()))
+.post("/login", ({ set, body, headers }) => {
+  const username = (body as any)?.username;
+  const password = (body as any)?.password;
+  if(!validateLogin(username, password)){
+    set.headers = { 'HX-Trigger': 'failedLogin' }
+  } else {
+    const user: User = {
+      id: headers['X-MAC-ADDRESS']!,
+      stage: 1
+    }
+    upsertUser(user);
+    set.headers = { 'HX-Trigger': 'successfulLogin' }
+  }
+})
+.post("/signup", ({ html, body: { remaining } }) => html(getSignup(remaining ?? (Math.floor(Math.random() * 10)+5))), {
+  body: t.Object({ remaining: t.Optional(t.Number()) }),
+  transform: ({ body }) => { if (body.remaining) body.remaining = +body.remaining }
+})
+export default login;
+
+const getLoginPage = () => `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -149,7 +176,7 @@ console.log('WW91IGhhdmUgZG9uZSB3ZWxsIHRvIGdldCB0aGlzIGZhci4gZFhObGNtNWhiV1U2SUh
 </html>
 `
 
-export const getSignup = (remaining: number = 13, dropRate_ms: number = 6000, jitter_ms: number = 4500) => {
+const getSignup = (remaining: number = 13, dropRate_ms: number = 6000, jitter_ms: number = 4500) => {
   const jitterDirection = Math.floor(Math.random() * 2) == 0 ? -1 : 1;
   const delay = dropRate_ms + (jitter_ms * Math.random() * jitterDirection);
 
@@ -167,6 +194,6 @@ export const getSignup = (remaining: number = 13, dropRate_ms: number = 6000, ji
   `;
 }
 
-export const validateLogin = (username: string, password: string) => {
+const validateLogin = (username: string, password: string) => {
   return username === 'unruffled-chooser' && password === 'silliness-repaying'
 }
