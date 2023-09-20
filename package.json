@@ -7,7 +7,9 @@
   },
   "scripts": {
     "dev": "bun run --watch src/index.ts",
-    "start": "bun src/index.ts"
+    "start": "bun src/index.ts",
+    "docker-build": "docker build -t otus-ctf-2023 .",
+    "docker-run": "docker run --restart=always -d -p 3000:3000 otus-ctf-2023"
   },
   "dependencies": {
     "@elysiajs/html": "^0.6.6",
