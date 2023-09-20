@@ -10,21 +10,21 @@ const app = new Elysia()
   .get("/favicon.ico", () => Bun.file('./public/favicon.ico'))
   .get("/", ({headers, set}) => {
     const userId = headers['X-MAC-ADDRESS']!;
-    const user = getUser(userId)
-    if(user) {
-      switch(user.stage){
-        case 0:
-          set.redirect = '/login'
-          break;
-        case 1:
-          set.redirect = '/quiz'
-          break;
-        case 2:
-          break;
-      }
-    } else {
-      createUser({id: userId, stage: 0});
-      set.redirect = '/login'
+    let user = getUser(userId)
+    if(!user) {
+      user = {id: userId, stage: 0}
+      createUser(user);
+    }
+    
+    switch(user.stage){
+      case 0:
+        set.redirect = '/login'
+        break;
+      case 1:
+        set.redirect = '/quiz'
+        break;
+      case 2:
+        break;
     }
   })
   .get("/login", ({ html }) => html(getLoginPage()))
