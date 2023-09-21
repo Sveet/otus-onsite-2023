@@ -249,21 +249,13 @@ sudo iptables -t nat -A PREROUTING -i wlan0 -p udp --dport 53 -j DNAT --to-desti
 ```
 
 #### Save iptables rules & load on boot
-Save the current rules to disk
+Install iptables-persistent. Choose `Yes` when asked to save current configuration.
 ```bash
-sudo sh -c "iptables-save > /etc/iptables.ipv4.nat"
+sudo apt-get install iptables-persistent
 ```
-Add a network interfaces file
+Manually save the current rules to disk
 ```bash
-sudo vi /etc/network/interfaces.d/iptables-setup
-```
-Contents of `/etc/network/interfaces.d/iptables-setup`
-```
-iptables-restore < /etc/iptables.ipv4.nat
-```
-Set as executable
-```bash
-sudo chmod +x /etc/network/interfaces.d/iptables-setup
+sudo iptables-save > /etc/iptables/rules.v4
 ```
 
 ### Enable & Start Services
