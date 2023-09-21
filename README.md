@@ -43,25 +43,14 @@ sudo vi /etc/nginx/sites-available/default
 Contents of config
 ```
 server {
-    listen 8080;
+    listen 80 default_server;
+    server_name _;
 
-    # Apple's captive portal detection
-    location /library/test/success.html {
-        default_type text/plain;
-        return 200 "Success\n";
+    # Check if the host is not 10.0.0.1 and redirect
+    if ($host != '10.0.0.1') {
+        rewrite ^ http://10.0.0.1 permanent;
     }
 
-    # Google's (Android) captive portal detection
-    location /generate_204 {
-        return 204;
-    }
-
-    # Microsoft's (Windows) captive portal detection
-    location /redirect {
-        return 302 http://www.msftconnecttest.com/connecttest.txt;
-    }
-
-    # Default server configuration, e.g., your challenge or captive portal page
     location / {
         set $mac_address "";
         rewrite_by_lua_block {
@@ -74,6 +63,36 @@ server {
         proxy_set_header X-MAC-Address $mac_address;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
+    }
+}
+server {
+    listen 80;
+    server_name 192.168.8.170;
+    
+    location / {
+        set $mac_address "";
+        rewrite_by_lua_block {
+            local handle = io.popen("/home/j/get_mac.sh " .. ngx.var.remote_addr)
+            local result = handle:read("*a")
+            handle:close()
+            ngx.var.mac_address = result
+        }
+        proxy_pass http://127.0.0.1:3000;
+        proxy_set_header X-MAC-Address $mac_address;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+}
+server {
+    listen 443 ssl default_server;
+    server_name _;
+
+    # Point to the self-signed certificate and key
+    ssl_certificate /etc/nginx/ssl/nginx.crt;
+    ssl_certificate_key /etc/nginx/ssl/nginx.key;
+
+    location / {
+        rewrite ^ http://10.0.0.1 permanent;
     }
 }
 ```
@@ -179,7 +198,6 @@ interface=wlan0
 dhcp-range=10.0.0.2,10.0.0.100,255.255.255.0,24h
 dhcp-option=3,10.0.0.1
 dhcp-option=6,10.0.0.1
-address=/#/10.0.0.1
 ```
 
 #### Configure Static IP for wlan0
@@ -208,13 +226,26 @@ net.ipv4.ip_forward=1
 
 #### Setup `iptables` rules
 ```bash
-sudo iptables -F FORWARD        # clear existing FORWARD rules
-sudo iptables -P FORWARD DROP   # set default policy to DROP for the FORWARD chain
-sudo iptables -A FORWARD -i wlan0 -o eth0 -j ACCEPT   # Allow traffic to/from the Pi
-sudo iptables -A FORWARD -i eth0 -o wlan0 -j ACCEPT   # Allow traffic to/from the Pi
-sudo iptables -t nat -A PREROUTING -i wlan0 -p tcp --dport 80 -j DNAT --to-destination 10.0.0.1:8080    # Redirect all traffic to the captive portal
-sudo iptables -A INPUT -i eth0 -p tcp --dport 22 -j ACCEPT    # Allow SSH on `eth0`
-sudo iptables -A INPUT -i wlan0 -p tcp --dport 22 -j DROP     # Block SSH on `wlan0`
+# 1. Block SSH over wlan0
+sudo iptables -A INPUT -i wlan0 -p tcp --dport 22 -j DROP
+
+# 2. Allow All Traffic from the Host Machine to bypass captive portal
+# Replace YOUR_HOST_IP with the IP address of your machine
+sudo iptables -t nat -A PREROUTING -i wlan0 -s 10.0.0.1 -j ACCEPT
+
+# 3. Allow All Traffic on eth0
+sudo iptables -t nat -A PREROUTING -i eth0 -j ACCEPT
+
+# 4. Redirect all HTTP and HTTPS traffic on wlan0 to 10.0.0.1:8080
+sudo iptables -t nat -A PREROUTING -i wlan0 -p tcp --dport 80 -j DNAT --to-destination 10.0.0.1:80
+sudo iptables -t nat -A PREROUTING -i wlan0 -p tcp --dport 443 -j DNAT --to-destination 10.0.0.1:443
+
+# 5. Ensure wlan0 and eth0 don't share traffic
+sudo iptables -A FORWARD -i wlan0 -o eth0 -j DROP
+sudo iptables -A FORWARD -i eth0 -o wlan0 -j DROP
+
+# 6. Ensure all DNS traffic goes to 10.0.0.1
+sudo iptables -t nat -A PREROUTING -i wlan0 -p udp --dport 53 -j DNAT --to-destination 10.0.0.1
 ```
 
 #### Save iptables rules & load on boot
@@ -228,7 +259,7 @@ sudo vi /etc/network/interfaces.d/iptables-setup
 ```
 Contents of `/etc/network/interfaces.d/iptables-setup`
 ```
-pre-up iptables-restore < /etc/iptables.ipv4.nat
+iptables-restore < /etc/iptables.ipv4.nat
 ```
 Set as executable
 ```bash
