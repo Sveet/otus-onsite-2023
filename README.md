@@ -33,10 +33,10 @@ Below are my notes for my Raspberry Pi 3B running Raspberry Pi OS 11. The intend
 ### Setup nginx to forward traffic and populate headers
 Install `nginx`
 ```bash
-sudo apt install nginx nginx-extras
+sudo apt install nginx
 ```
 
-Create Self Signed Cert
+Create Self Signed Cert (openssl will prompt for details)
 ```bash
 openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/nginx/ssl/nginx.key -out /etc/nginx/ssl/nginx.crt
 ```
