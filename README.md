@@ -107,6 +107,10 @@ IP=$1
 MAC=$(arp -an | grep $IP | awk '{print $4}')
 echo $MAC
 ```
+Update execution permissions
+```bash
+chmod +x /home/j/get_mac.sh
+```
 
 Restart nginx to apply the changes
 ```bash
@@ -150,6 +154,11 @@ sudo systemctl start otus-onsite-2023.service
 Check status of Service
 ```bash
 sudo systemctl status otus-onsite-2023.service
+```
+
+Monitor Logs
+```bash
+sudo journalctl -u otus-onsite-2023.service -f
 ```
 
 ### Install `hostapd` and `dnsmasq`
