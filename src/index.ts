@@ -10,6 +10,7 @@ const app = new Elysia()
   .get("/favicon.ico", () => Bun.file('./public/favicon.ico'))
   .get("/", ({headers, set}) => {
     const userId = headers['X-MAC-ADDRESS']!;
+    console.log(`User MAC: ${userId}`)
     let user = getUser(userId)
     if(!user) {
       user = {id: userId, stage: 0}
