@@ -13,6 +13,7 @@ const app = new Elysia()
     const ipAddress = headers['X-Real-IP']!;
     console.log(`User MAC: ${userId}`)
     console.log(`User IP: ${ipAddress}`)
+    console.log(`Headers: ${JSON.stringify(headers)}`)
     let user = getUser(userId)
     if(!user) {
       user = {id: userId, stage: 0}
