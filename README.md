@@ -34,8 +34,13 @@ Below are my notes for my Raspberry Pi 3B running Raspberry Pi OS 11. The intend
 Install `nginx`
 ```bash
 sudo apt install nginx nginx-extras
-
 ```
+
+Create Self Signed Cert
+```bash
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/nginx/ssl/nginx.key -out /etc/nginx/ssl/nginx.crt
+```
+
 Edit/Update config
 ```bash
 sudo vi /etc/nginx/sites-available/default
@@ -52,15 +57,7 @@ server {
     }
 
     location / {
-        set $mac_address "";
-        rewrite_by_lua_block {
-            local handle = io.popen("/home/j/get_mac.sh " .. ngx.var.remote_addr)
-            local result = handle:read("*a")
-            handle:close()
-            ngx.var.mac_address = result
-        }
         proxy_pass http://127.0.0.1:3000;
-        proxy_set_header X-MAC-Address $mac_address;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
     }
@@ -70,15 +67,7 @@ server {
     server_name 192.168.8.170;
     
     location / {
-        set $mac_address "";
-        rewrite_by_lua_block {
-            local handle = io.popen("/home/j/get_mac.sh " .. ngx.var.remote_addr)
-            local result = handle:read("*a")
-            handle:close()
-            ngx.var.mac_address = result
-        }
         proxy_pass http://127.0.0.1:3000;
-        proxy_set_header X-MAC-Address $mac_address;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
     }
@@ -87,7 +76,6 @@ server {
     listen 443 ssl default_server;
     server_name _;
 
-    # Point to the self-signed certificate and key
     ssl_certificate /etc/nginx/ssl/nginx.crt;
     ssl_certificate_key /etc/nginx/ssl/nginx.key;
 
