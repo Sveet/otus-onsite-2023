@@ -8,12 +8,11 @@ const app = new Elysia()
   .use(staticPlugin())
   .use(html())
   .get("/favicon.ico", () => Bun.file('./public/favicon.ico'))
-  .get("/", ({headers, set}) => {
-    const userId = headers['X-MAC-ADDRESS']!;
-    const ipAddress = headers['X-Real-IP']!;
-    console.log(`User MAC: ${userId}`)
-    console.log(`User IP: ${ipAddress}`)
-    console.log(`Headers: ${JSON.stringify(headers)}`)
+  .get("/", async ({headers, set}) => {
+    const ipAddress = headers['x-real-ip']!;
+    const userId = await new Response(Bun.spawn(['/home/j/get_mac.sh', ipAddress]).stdout).text();
+    console.log(`Headers ${JSON.stringify(headers)}`)
+    console.log(`userId: ${userId}`)
     let user = getUser(userId)
     if(!user) {
       user = {id: userId, stage: 0}
