@@ -125,7 +125,7 @@ Description=Otus CTF 2023
 After=network.target
 
 [Service]
-ExecStart=/usr/bin/env bun start
+ExecStart=/usr/bin/env bun dev
 Restart=always
 User=j
 Group=users
