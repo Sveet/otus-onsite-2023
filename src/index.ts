@@ -1,23 +1,22 @@
 import { Elysia } from "elysia";
 import { staticPlugin } from "@elysiajs/static"
 import { html } from "@elysiajs/html"
-import { createUser, getUser } from "./db";
+import { createUser } from "./db";
 import login from './login'
+import { UserPlugin } from "./mac";
 
 const app = new Elysia()
+  .use(UserPlugin())
   .use(staticPlugin())
   .use(html())
   .get("/favicon.ico", () => Bun.file('./public/favicon.ico'))
-  .get("/", async ({headers, set}) => {
-    const ipAddress = headers['x-real-ip']!;
-    const userId = await new Response(Bun.spawn(['/home/j/get_mac.sh', ipAddress]).stdout).text();
-    let user = getUser(userId)
-    if(!user) {
-      user = {id: userId, stage: 0}
+  .get("/", async ({ set, user, MAC }) => {
+    if (!user) {
+      user = { id: MAC, stage: 0 }
       createUser(user);
     }
 
-    switch(user.stage){
+    switch (user.stage) {
       case 0:
         set.redirect = '/login'
         break;
@@ -29,7 +28,7 @@ const app = new Elysia()
         break;
     }
   })
-  .use(login)
+  .use(login(1))
   .listen(3000);
 
 console.log(

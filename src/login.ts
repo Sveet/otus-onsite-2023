@@ -1,28 +1,34 @@
 import { Elysia, t } from "elysia";
 import { html } from "@elysiajs/html";
 import { User, upsertUser } from "./db";
+import { UserPlugin } from "./mac";
 
-const login = new Elysia()
-.use(html())
-.get("/login", ({ html }) => html(getLoginPage()))
-.post("/login", ({ set, body, headers }) => {
-  const username = (body as any)?.username;
-  const password = (body as any)?.password;
-  if(!validateLogin(username, password)){
-    set.headers = { 'HX-Trigger': 'failedLogin' }
-  } else {
-    const user: User = {
-      id: headers['X-MAC-ADDRESS']!,
-      stage: 1
-    }
-    upsertUser(user);
-    set.headers = { 'HX-Trigger': 'successfulLogin' }
-  }
-})
-.post("/signup", ({ html, body: { remaining } }) => html(getSignup(remaining ?? (Math.floor(Math.random() * 10)+5))), {
-  body: t.Object({ remaining: t.Optional(t.Number()) }),
-  transform: ({ body }) => { if (body.remaining) body.remaining = +body.remaining }
-})
+const login = (stage: number) => (app: Elysia) => app
+  .use(UserPlugin())
+  .guard({transform: ({set, user})=>{
+    console.log(`user: ${JSON.stringify(user)}`)
+    if(user?.stage != stage) set.redirect = '/'
+  }}, (app) => app
+    .use(html())
+    .get("/login", ({ html }) => html(getLoginPage()))
+    .post("/login", ({ set, body, headers }) => {
+      const username = (body as any)?.username;
+      const password = (body as any)?.password;
+      if(!validateLogin(username, password)){
+        set.headers = { 'HX-Trigger': 'failedLogin' }
+      } else {
+        const user: User = {
+          id: headers['X-MAC-ADDRESS']!,
+          stage: 1
+        }
+        upsertUser(user);
+        set.headers = { 'HX-Trigger': 'successfulLogin' }
+      }
+    })
+    .post("/signup", ({ html, body: { remaining } }) => html(getSignup(remaining ?? (Math.floor(Math.random() * 10)+5))), {
+      body: t.Object({ remaining: t.Optional(t.Numeric()) }),
+    })
+  )
 export default login;
 
 const getLoginPage = () => `<!DOCTYPE html>
@@ -31,6 +37,7 @@ const getLoginPage = () => `<!DOCTYPE html>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login Page</title>
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
   <script src="/public/htmx@1.9.5.min.js"></script>
   <script src="/public/tailwind@3.3.3.min.js"></script>
   <style>
