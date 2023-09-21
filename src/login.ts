@@ -121,7 +121,7 @@ const getLoginPage = () => `<!DOCTYPE html>
   }
   function playToink() {
     const audio = new Audio('public/toink.mp3');
-    audio.volume = 0.75;
+    audio.volume = 0.25;
     audio.play();
   }
   document.body.addEventListener('successfulLogin', (e)=>{
