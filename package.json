@@ -10,9 +10,9 @@
     "start": "bun src/index.ts"
   },
   "dependencies": {
-    "@elysiajs/html": "^0.6.6",
-    "@elysiajs/static": "^0.6.0",
-    "elysia": "latest"
+    "@elysiajs/html": "^0.7.0",
+    "@elysiajs/static": "^0.7.1",
+    "elysia": "^0.7.7"
   },
   "devDependencies": {
     "bun-types": "latest"

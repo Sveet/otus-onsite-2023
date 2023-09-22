@@ -2,28 +2,33 @@ import { Elysia, t } from "elysia";
 import { html } from "@elysiajs/html";
 import { upsertUser } from "../db";
 import { UserPlugin } from "../plugin";
+import { ChallengeParams } from "../types";
 
-const login = (stage: number) => (app: Elysia) => app
+const login = ({stage, url}: ChallengeParams) => (app: Elysia) => app
   .use(UserPlugin())
-  .use(html())
-  .get("/login", ({ html }) => html(getLoginPage()))
-  .post("/login", ({ set, body, user }) => {
-    const username = (body as any)?.username;
-    const password = (body as any)?.password;
-    if(!validateLogin(username, password)){
-      set.headers = { 'HX-Trigger': 'failedLogin' }
-    } else {
-      user!.stage = stage+1
-      upsertUser(user!);
-      set.headers = { 'HX-Trigger': 'successfulLogin' }
+  .guard({beforeHandle: ({set, user})=>{
+    if(user?.stage != stage){
+      set.redirect = '/'
+      return 'redirected'
     }
-  })
-  .post("/signup", ({ html, body: { remaining } }) => html(getSignup(remaining ?? (Math.floor(Math.random() * 10)+5))), {
-    body: t.Object({ remaining: t.Optional(t.Number()) }),
-    transform: ({body}) => {
-      if(body.remaining) body.remaining = +body.remaining;
-    }
-  })
+  }}, app => app
+    .use(html())
+    .get(url, ({ html }) => html(getLoginPage()))
+    .post(url, ({ set, body, user }) => {
+      const username = (body as any)?.username;
+      const password = (body as any)?.password;
+      if(!validateLogin(username, password)){
+        set.headers = { 'HX-Trigger': 'failedLogin' }
+      } else {
+        user!.stage = stage+1
+        upsertUser(user!);
+        set.headers = { 'HX-Trigger': 'successfulLogin' }
+      }
+    })
+    .post("/signup", ({ html, body: { remaining } }) => html(getSignup(remaining ?? (Math.floor(Math.random() * 10)+5))), {
+      body: t.Object({ remaining: t.Optional(t.Numeric()) }),
+    })
+  )
 export default login;
 
 const getLoginPage = () => `<!DOCTYPE html>

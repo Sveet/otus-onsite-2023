@@ -1,4 +1,5 @@
 import { Database } from 'bun:sqlite';
+import { User } from './types';
 
 const db = new Database('otus-onsite-2023.db');
 
@@ -10,13 +11,6 @@ db.exec(`
     updated DATETIME DEFAULT CURRENT_TIMESTAMP
   );
 `);
-
-export type User = {
-  id: string;
-  stage: number;
-  created?: Date;
-  updated?: Date;
-};
 
 export function getUser(id: string): User | undefined {
   const stmt = db.prepare("SELECT * FROM users WHERE id = ?");

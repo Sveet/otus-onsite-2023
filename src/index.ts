@@ -5,6 +5,7 @@ import { createUser } from "./db";
 import { UserPlugin, StageGuard } from "./plugin";
 import login from './challenges/login'
 import math from "./challenges/math";
+import { waiting } from "./challenges/waiting";
 
 const app = new Elysia()
   .use(UserPlugin())
@@ -22,15 +23,15 @@ const app = new Elysia()
         set.redirect = '/login'
         break;
       case 1:
-        set.redirect = '/tos'
+        set.redirect = '/nein'
         break;
       case 2:
         set.redirect = '/quiz'
         break;
     }
   })
-  .use(StageGuard(0)(login(0)))
-  .use(StageGuard(1)(math(1)))
+  .use(login({stage: 0, url: '/login'}))
+  .use(waiting({stage: 1, url: '/nein'}))
   .listen(3000);
 
 console.log(
