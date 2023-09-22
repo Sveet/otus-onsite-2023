@@ -1,9 +1,10 @@
-import { Elysia } from "elysia";
+import { Elysia, t } from "elysia";
 import { staticPlugin } from "@elysiajs/static"
 import { html } from "@elysiajs/html"
 import { createUser } from "./db";
+import { UserPlugin, StageGuard } from "./plugin";
 import login from './challenges/login'
-import { UserPlugin } from "./plugin";
+import math from "./challenges/math";
 
 const app = new Elysia()
   .use(UserPlugin())
@@ -28,7 +29,8 @@ const app = new Elysia()
         break;
     }
   })
-  .use(login(0))
+  .use(StageGuard(0)(login(0)))
+  .use(StageGuard(1)(math(1)))
   .listen(3000);
 
 console.log(

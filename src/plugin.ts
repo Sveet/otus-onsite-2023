@@ -30,7 +30,7 @@ export const UserPlugin = () => {
   })
 }
 
-export const StageGuard = (stage: number) => {
+export const StageGuard = (stage: number) => (app: (app: any) => any) => {
   return new Elysia({
     name: 'stage-guard',
   })
@@ -38,5 +38,5 @@ export const StageGuard = (stage: number) => {
   .guard({transform: ({set, user})=>{
     console.log(`user: ${JSON.stringify(user)}`)
     if(user?.stage != stage) set.redirect = '/'
-  }})
+  }}, app)
 }

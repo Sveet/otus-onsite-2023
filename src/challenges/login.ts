@@ -1,10 +1,10 @@
 import { Elysia, t } from "elysia";
 import { html } from "@elysiajs/html";
-import { User, upsertUser } from "../db";
-import { StageGuard } from "../plugin";
+import { upsertUser } from "../db";
+import { UserPlugin } from "../plugin";
 
 const login = (stage: number) => (app: Elysia) => app
-  .use(StageGuard(stage))
+  .use(UserPlugin())
   .use(html())
   .get("/login", ({ html }) => html(getLoginPage()))
   .post("/login", ({ set, body, user }) => {
@@ -19,7 +19,10 @@ const login = (stage: number) => (app: Elysia) => app
     }
   })
   .post("/signup", ({ html, body: { remaining } }) => html(getSignup(remaining ?? (Math.floor(Math.random() * 10)+5))), {
-    body: t.Object({ remaining: t.Optional(t.Numeric()) }),
+    body: t.Object({ remaining: t.Optional(t.Number()) }),
+    transform: ({body}) => {
+      if(body.remaining) body.remaining = +body.remaining;
+    }
   })
 export default login;
 
