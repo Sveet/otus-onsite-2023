@@ -98,6 +98,7 @@ const getLoginPage = () => `<!DOCTYPE html>
 </form>
 
 <script>
+  let thunder;
   function playThunder() {
     // Flash effect
     const flash = document.getElementById('flashEffect');
@@ -106,8 +107,8 @@ const getLoginPage = () => `<!DOCTYPE html>
       flash.style.display = 'none';
     }, 100);
 
-    const audio = new Audio('public/thunder.wav');
-    audio.play();
+    if(!thunder) thunder = new Audio('public/thunder.wav');
+    thunder.play();
   }
   function clearForm() {
     document.getElementById('username').value = '';
@@ -117,14 +118,15 @@ const getLoginPage = () => `<!DOCTYPE html>
     playThunder();
     clearForm();
   })
+  let success;
   function playSuccess() {
-    const audio = new Audio('public/success.wav');
-    audio.play();
+    if(!success) success = new Audio('public/success.wav');
+    success.play();
   }
+  let toink;
   function playToink() {
-    const audio = new Audio('public/toink.mp3');
-    audio.volume = 0.25;
-    audio.play();
+    if(!toink) toink = new Audio('public/toink.mp3');
+    toink.play();
   }
   document.body.addEventListener('successfulLogin', (e)=>{
     playSuccess();
