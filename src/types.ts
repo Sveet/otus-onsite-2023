@@ -1,3 +1,4 @@
+import {Elysia} from "elysia";
 
 export type User = {
   id: string;
@@ -9,4 +10,5 @@ export type User = {
 export type ChallengeParams = {
   stage: number;
   url: string;
+  handler?: (params: ChallengeParams) => (app: Elysia) => Elysia;
 }
