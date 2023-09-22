@@ -84,17 +84,7 @@ server {
     }
 }
 ```
-Create `get_mac.sh` to retrieve the Mac Address
-```
-vi /home/j/get_mac.sh
-```
-Contents
-```
-#!/bin/bash
-IP=$1
-MAC=$(arp -an | grep $IP | awk '{print $4}')
-echo $MAC
-```
+
 Update execution permissions
 ```bash
 chmod +x /home/j/get_mac.sh

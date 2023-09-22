@@ -2,8 +2,8 @@ import { Elysia } from "elysia";
 import { staticPlugin } from "@elysiajs/static"
 import { html } from "@elysiajs/html"
 import { createUser } from "./db";
-import login from './login'
-import { UserPlugin } from "./mac";
+import login from './challenges/login'
+import { UserPlugin } from "./plugin";
 
 const app = new Elysia()
   .use(UserPlugin())
@@ -28,7 +28,7 @@ const app = new Elysia()
         break;
     }
   })
-  .use(login(1))
+  .use(login(0))
   .listen(3000);
 
 console.log(
