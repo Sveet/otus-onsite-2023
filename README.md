@@ -139,6 +139,11 @@ Monitor Logs
 sudo journalctl -u otus-onsite-2023.service -f
 ```
 
+Restart Service
+```bash
+sudo systemctl restart otus-onsite-2023.service
+```
+
 ### Install `hostapd` and `dnsmasq`
 ```bash
 sudo apt install hostapd dnsmasq

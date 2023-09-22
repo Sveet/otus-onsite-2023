@@ -26,7 +26,7 @@ export const waiting = ({ stage, url }: ChallengeParams) => (app: Elysia) => app
       <script src="/public/tailwind@3.3.3.min.js"></script>
       <link rel="icon" href="favicon.ico" type="image/x-icon">
     </head>
-    <body class="bg-gray-100 h-screen flex justify-center items-center">
+    <body class="bg-gray-200 h-screen flex justify-center items-center">
       <div class="text-center bg-white p-8 rounded-lg shadow-md border-2 border-blue-300">
         <p class="text-lg mb-4 text-blue-600">Thanks for playing! You're ahead of the curve. Stay tuned for the rest of the challenge.</p>
         ${generateCountdownHTML(RESUME_TIME)}
