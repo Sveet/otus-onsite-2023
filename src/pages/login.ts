@@ -4,31 +4,24 @@ import { upsertUser } from "../db";
 import { UserPlugin } from "../plugin";
 import { ChallengeParams } from "../types";
 
-const login = ({stage, url}: ChallengeParams) => (app: Elysia) => app
+const login = ({ stage, url }: ChallengeParams) => (app: Elysia) => app
   .use(UserPlugin())
-  .guard({beforeHandle: ({set, user})=>{
-    if(user?.stage != stage){
-      set.redirect = '/'
-      return 'redirected'
+  .use(html())
+  .get(url, ({ html }) => html(getLoginPage()))
+  .post(url, ({ set, body, user }) => {
+    const username = (body as any)?.username;
+    const password = (body as any)?.password;
+    if (!validateLogin(username, password)) {
+      set.headers = { 'HX-Trigger': 'failedLogin' }
+    } else {
+      user!.stage = stage + 1
+      upsertUser(user!);
+      set.headers = { 'HX-Trigger': 'successfulLogin' }
     }
-  }}, app => app
-    .use(html())
-    .get(url, ({ html }) => html(getLoginPage()))
-    .post(url, ({ set, body, user }) => {
-      const username = (body as any)?.username;
-      const password = (body as any)?.password;
-      if(!validateLogin(username, password)){
-        set.headers = { 'HX-Trigger': 'failedLogin' }
-      } else {
-        user!.stage = stage+1
-        upsertUser(user!);
-        set.headers = { 'HX-Trigger': 'successfulLogin' }
-      }
-    })
-    .post("/signup", ({ html, body: { remaining } }) => html(getSignup(remaining ?? (Math.floor(Math.random() * 10)+5))), {
-      body: t.Object({ remaining: t.Optional(t.Numeric()) }),
-    })
-  )
+  })
+  .post("/signup", ({ html, body: { remaining } }) => html(getSignup(remaining ?? (Math.floor(Math.random() * 10) + 5))), {
+    body: t.Object({ remaining: t.Optional(t.Numeric()) }),
+  })
 export default login;
 
 const getLoginPage = () => `<!DOCTYPE html>
@@ -37,9 +30,9 @@ const getLoginPage = () => `<!DOCTYPE html>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login Page</title>
-  <link rel="icon" type="image/x-icon" href="/favicon.ico">
   <script src="/public/htmx@1.9.5.min.js"></script>
   <script src="/public/tailwind@3.3.3.min.js"></script>
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
   <style>
     .flash {
       position: fixed;

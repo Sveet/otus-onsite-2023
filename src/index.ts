@@ -3,15 +3,17 @@ import { staticPlugin } from "@elysiajs/static"
 import { html } from "@elysiajs/html"
 import { createUser } from "./db";
 import { UserPlugin, StageGuard } from "./plugin";
-import login from './challenges/login'
-import math from "./challenges/math";
-import { waiting } from "./challenges/waiting";
+import login from './pages/login'
+import math from "./pages/math";
+import { waiting } from "./pages/waiting";
 import { ChallengeParams } from "./types";
+import rules from "./pages/rules";
 
 const challenges: ChallengeParams[] = [
-  {stage: 0, url: '/login', handler: login},
-  {stage: 1, url: '/waiting', handler: waiting},
-  {stage: 2, url: '/login', handler: math},
+  { stage: 0, url: '/login', handler: login },
+  // {stage: 1, url: '/waiting', handler: waiting},
+  { stage: 1, url: '/rules', handler: rules },
+  { stage: 2, url: '/math', handler: math },
 ]
 
 const app = new Elysia()
@@ -29,9 +31,16 @@ const app = new Elysia()
   .listen(3000);
 
 challenges.map(c => {
-  if(c?.handler) app.use(c.handler(c))
+  app.guard({
+    beforeHandle: ({ set, user }) => {
+      if (user?.stage != c.stage) {
+        set.redirect = '/'
+        return 'redirected'
+      }
+    }
+  }, app => app.use(c.handler(c)))
 })
 
 console.log(
-  `🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`
+  `Otus CTF 2023 is running at ${app.server?.hostname}:${app.server?.port}`
 );
