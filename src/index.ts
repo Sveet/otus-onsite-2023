@@ -43,6 +43,8 @@ challenges.map(c => {
   }, app => app.use(c.handler(c)))
 })
 
+app.all('*', ({set})=> set.redirect = '/')
+
 console.log(
   `Otus CTF 2023 is running at ${app.server?.hostname}:${app.server?.port}`
 );

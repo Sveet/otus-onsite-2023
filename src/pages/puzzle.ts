@@ -74,13 +74,21 @@ const puzzle = ({ stage, url }: ChallengeParams) => (app: Elysia) => app
       tiles[secondTile] = a;
       return tiles.map(t => t || 0);
     }
+    function playSuccess() {
+      const audio = new Audio('public/success.wav');
+      audio.play();
+    }
+    document.body.addEventListener('success', (e)=>{
+      playSuccess();
+      setTimeout(()=>location.href = '/', 1500);
+    })
   </script>
 </body>
 </html>
 `))
   .post(url, ({user, set, html, body: { id, tiles } }) => {
     if(tiles.every((t, i) => t == SOLUTION[i])){
-      set.headers['HX-Trigger'] = 'successfulLogin';
+      set.headers['HX-Trigger'] = 'success';
       user.stage = stage +1;
       upsertUser(user);
     }

@@ -2,9 +2,11 @@ import { Elysia, t } from "elysia"
 import { html } from "@elysiajs/html";
 import { UserPlugin } from "../plugin";
 import { ChallengeParams, GameData } from "../types";
+import { swagger } from '@elysiajs/swagger'
 import { randomUUID } from "crypto";
 
 const rules = ({ stage, url }: ChallengeParams) => (app: Elysia) => app
+  .use(swagger({path: '/api'}))
   .use(UserPlugin())
   .use(html())
   .get(url, ({ html }) => html(`<!DOCTYPE html>
