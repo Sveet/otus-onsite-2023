@@ -4,30 +4,46 @@ import { UserPlugin } from "../plugin";
 import { ChallengeParams } from "../types";
 
 const RESUME_TIME = new Date(process.env.RESUME_TIME ?? Date.now())
-
-export const waiting = ({ stage, url }: ChallengeParams) => (app: Elysia) => app
+const DATA_KEY = 'waiting'
+export const waiting = ({ url }: ChallengeParams) => (app: Elysia) => app
   .use(UserPlugin())
   .use(html())
-  .get(url, ({ html }) => html(`<!DOCTYPE html>
-    <html lang="en">
-    <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Hang on ...</title>
-      <script src="/public/htmx@1.9.5.min.js"></script>
-      <script src="/public/tailwind@3.3.3.min.js"></script>
-      <link rel="icon" href="favicon.ico" type="image/x-icon">
-    </head>
-    <body class="bg-gray-200 h-screen flex justify-center items-center">
-      <div class="text-center bg-white p-8 rounded-lg shadow-md">
-        <p class="text-lg mb-4 text-blue-600">Thanks for playing! You're ahead of the curve. Stay tuned for the rest of the challenge.</p>
-        ${generateCountdownHTML(RESUME_TIME)}
-      </div>
-    </body>
-    </html>
-    
-    `))
-  .post('/waiting_countdown', ({ html }) => html(generateCountdownHTML(RESUME_TIME)))
+  .get(url, ({ user, html }) => {
+    if(!user.data.has(DATA_KEY)){
+      user.data.set(DATA_KEY, { title: 'Waiting Room', start: new Date(), minimum: (1 * 60 * 1000), views: 1})
+    } else {
+      const data = user.data.get(DATA_KEY)!
+      data.views += 1;
+      user.data.set(DATA_KEY, data);
+      user.save();
+    }
+    return html(`<!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Hang on...</title>
+        <script src="/public/htmx@1.9.5.min.js"></script>
+        <script src="/public/tailwind@3.3.3.min.js"></script>
+        <link rel="icon" href="favicon.ico" type="image/x-icon">
+      </head>
+      <body class="bg-gray-200 h-screen flex justify-center items-center">
+        <div class="text-center bg-white p-8 rounded-lg shadow-md">
+          <p class="text-lg mb-4 text-blue-600">Thanks for playing, you are ahead of the curve! Stay tuned for the rest of the challenge.</p>
+          ${generateCountdownHTML(RESUME_TIME)}
+        </div>
+      </body>
+      </html>
+    `)
+  })
+  .post('/waiting_countdown', ({ user, html }) => {
+    const data = user.data.get(DATA_KEY)!
+    data.views += 1;
+    user.data.set(DATA_KEY, data);
+    user.save();
+
+    return html(generateCountdownHTML(RESUME_TIME))
+  })
 
 type RemainingTime = {
   days: number,
