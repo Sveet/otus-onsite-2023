@@ -44,7 +44,6 @@ const rules = ({ stage, url }: ChallengeParams) => (app: Elysia) => app
                 </ul>
             </section>
 
-            <!-- FAQ Section -->
             <section class="mb-12">
                 <h2 class="text-3xl font-semibold mb-6 text-center text-blue-600 border-b border-blue-400">Frequently Asked Questions</h2>
 
@@ -69,6 +68,7 @@ const rules = ({ stage, url }: ChallengeParams) => (app: Elysia) => app
           playSuccess();
           setTimeout(()=>location.href = '/', 1500);
         })
+        console.log('Hint: Sometimes the API exposes more than it should. Have you checked out our swagger? https://10.0.0.1/api')
       </script>
     </body>
     </html>
