@@ -8,11 +8,13 @@ import math from "./pages/math";
 import { waiting } from "./pages/waiting";
 import { ChallengeParams, User } from "./types";
 import rules from "./pages/rules";
+import puzzle from "./pages/puzzle";
 
 const challenges: ChallengeParams[] = [
   { stage: 0, url: '/login', handler: login },
   // {stage: 1, url: '/waiting', handler: waiting},
-  { stage: 1, url: '/rules', handler: rules },
+  // { stage: 1, url: '/rules', handler: rules },
+  { stage: 1, url: '/puzzle', handler: puzzle },
   { stage: 2, url: '/math', handler: math },
 ]
 

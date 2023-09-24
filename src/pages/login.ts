@@ -14,8 +14,8 @@ const login = ({ stage, url }: ChallengeParams) => (app: Elysia) => app
     if (!validateLogin(username, password)) {
       set.headers = { 'HX-Trigger': 'failedLogin' }
     } else {
-      user!.stage = stage + 1
-      upsertUser(user!);
+      user.stage = stage + 1
+      upsertUser(user);
       set.headers = { 'HX-Trigger': 'successfulLogin' }
     }
   })
