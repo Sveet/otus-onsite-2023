@@ -192,6 +192,7 @@ interface=wlan0
 dhcp-range=10.0.0.2,10.0.0.100,255.255.255.0,24h
 dhcp-option=3,10.0.0.1
 dhcp-option=6,10.0.0.1
+address=/#/10.0.0.1
 ```
 
 #### Configure Static IP for wlan0

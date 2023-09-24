@@ -8,7 +8,7 @@ const quiz = ({ name, stage, url, dataKey }: ChallengeParams) => (app: Elysia) =
   .use(html())
   .get(url, ({ user, html }) => {
     if(!user.data.has(dataKey)){
-      user.data.set(dataKey, { start: new Date(), minimum: (1 * 60 * 1000)})
+      user.data.set(dataKey, { start: new Date() })
       user.save();
     }
     return html(`<!DOCTYPE html>
@@ -25,6 +25,16 @@ const quiz = ({ name, stage, url, dataKey }: ChallengeParams) => (app: Elysia) =
     <div class="text-center bg-white p-8 rounded-lg shadow-md">
       ${getQuizItem()}
     </div>
+    <script>
+      function playSuccess() {
+        const audio = new Audio('public/success.wav');
+        audio.play();
+      }
+      document.body.addEventListener('success', (e)=>{
+        playSuccess();
+        setTimeout(()=>location.href = '/', 1500);
+      })
+    </script>
   </body>
   </html>`)
   })
@@ -45,6 +55,8 @@ type QuizItem = {
 }
 const quizItems: QuizItem[] = [
 ]
-const getQuizItem = (id?: number) => ``
+const getQuizItem = (id?: number = quizItems.length-1) => {
+  return ``;
+}
 
 export default quiz;

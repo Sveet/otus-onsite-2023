@@ -14,7 +14,10 @@ const rules = ({ name, dataKey, stage, url }: ChallengeParams) => (app: Elysia) 
   .use(UserPlugin())
   .use(html())
   .get(url, ({ user, html }) => {
-    if(!user.data.has(dataKey)) user.data.set(dataKey, { title: 'Rules of Engagement', start: new Date(), minimum: (3 * 60 * 1000)})
+    if(!user.data.has(dataKey)){
+      user.data.set(dataKey, { start: new Date() });
+      user.save();
+    }
     return html(`<!DOCTYPE html>
     <html lang="en">
     <head>
@@ -75,16 +78,17 @@ const rules = ({ name, dataKey, stage, url }: ChallengeParams) => (app: Elysia) 
           playSuccess();
           setTimeout(()=>location.href = '/', 1500);
         })
-        console.log('Hint: Sometimes the API exposes more than it should. Have you checked out our swagger? https://10.0.0.1/api')
+        console.log('Hint: Sometimes the API exposes more than it should. Have you checked out our swagger? http://10.0.0.1/api')
       </script>
     </body>
     </html>
     `)
   })
   .post(url, ({ set, user, body: { name, email } }) => {
-    const data = user.data.get(dataKey)!;
+    const data = user.data.get(dataKey) ?? {start: new Date()};
     data.name = name;
     data.email = email;
+    user.data.set(dataKey, data);
     user.advance(stage, dataKey);
 
     set.redirect = '/'

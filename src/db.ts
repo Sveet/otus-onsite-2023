@@ -15,39 +15,27 @@ db.exec(`
 
 export function getUser(id: string): User | undefined {
   const stmt = db.prepare("SELECT * FROM users WHERE id = ?");
-  const user = stmt.get(id) as User;
+  const user = stmt.get(id) as any;
   if (user) {
-    return new User({
-      id: user.id,
-      stage: user.stage,
-      created: new Date(user.created!),
-      updated: new Date(user.updated!),
-      data: deserializeData(user.data as unknown as string)
-    });
+    return new User(user);
   }
   return undefined;
 }
 
 export function getAllUsers(): User[] {
   const stmt = db.prepare("SELECT * FROM users");
-  const users = stmt.all() as User[];
-  return users.map(user => new User({
-    id: user.id,
-    stage: user.stage,
-    created: new Date(user.created!),
-    updated: new Date(user.updated!),
-    data: deserializeData(user.data as unknown as string)
-  }));
+  const users = stmt.all() as any[];
+  return users.map(user => new User(user));
 }
 
 export function createUser(user: Omit<User, 'created' | 'updated'>): void {
   const stmt = db.prepare("INSERT INTO users (id, stage, data) VALUES (?, ?, ?)");
-  stmt.run(user.id, user.stage, serializeData(user.data));
+  stmt.run(user.id, user.stage, serializeMap(user.data));
 }
 
 export function updateUser(user: User): void {
   const stmt = db.prepare("UPDATE users SET stage = ?, data = ?, updated = CURRENT_TIMESTAMP WHERE id = ?");
-  stmt.run(user.stage, serializeData(user.data), user.id);
+  stmt.run(user.stage, serializeMap(user.data), user.id);
 }
 
 export function upsertUser(user: User): void {
@@ -57,7 +45,7 @@ export function upsertUser(user: User): void {
     INSERT INTO users (id, stage, data) VALUES (?, ?, ?)
     ON CONFLICT(id) DO UPDATE SET stage = excluded.stage, data = excluded.data, updated = CURRENT_TIMESTAMP
   `);
-  stmt.run(user.id, user.stage, serializeData(user.data));
+  stmt.run(user.id, user.stage, serializeMap(user.data));
 }
 
 
@@ -67,5 +55,5 @@ export function deleteUser(id: string): void {
 }
 
 
-const serializeData = (data?: Map<string, StageData>) => JSON.stringify(Array.from(data?.entries() ?? []))
-const deserializeData = (data?: string) => new Map<string, StageData>(JSON.parse(data ?? '[]'))
+export const serializeMap = (data: Map<string, StageData>) => JSON.stringify(Array.from(data.entries()));
+export const deserializeMap = (data: string) => new Map<string, StageData>(JSON.parse(data));
