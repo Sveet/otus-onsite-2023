@@ -1,5 +1,5 @@
 import { Database } from 'bun:sqlite';
-import { GameData, User } from './types';
+import { StageData, User } from './types';
 
 const db = new Database('otus-onsite-2023.db');
 
@@ -17,13 +17,13 @@ export function getUser(id: string): User | undefined {
   const stmt = db.prepare("SELECT * FROM users WHERE id = ?");
   const user = stmt.get(id) as User;
   if (user) {
-    return {
+    return new User({
       id: user.id,
       stage: user.stage,
       created: new Date(user.created!),
       updated: new Date(user.updated!),
       data: deserializeData(user.data as unknown as string)
-    };
+    });
   }
   return undefined;
 }
@@ -31,7 +31,7 @@ export function getUser(id: string): User | undefined {
 export function getAllUsers(): User[] {
   const stmt = db.prepare("SELECT * FROM users");
   const users = stmt.all() as User[];
-  return users.map(user => ({
+  return users.map(user => new User({
     id: user.id,
     stage: user.stage,
     created: new Date(user.created!),
@@ -67,5 +67,5 @@ export function deleteUser(id: string): void {
 }
 
 
-const serializeData = (data?: Map<string, GameData>) => JSON.stringify(Array.from(data?.entries() ?? []))
-const deserializeData = (data?: string) => new Map<string, GameData>(JSON.parse(data ?? '[]'))
+const serializeData = (data?: Map<string, StageData>) => JSON.stringify(Array.from(data?.entries() ?? []))
+const deserializeData = (data?: string) => new Map<string, StageData>(JSON.parse(data ?? '[]'))

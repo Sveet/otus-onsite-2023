@@ -13,9 +13,9 @@ import puzzle from "./pages/puzzle";
 const challenges: ChallengeParams[] = [
   { stage: 0, url: '/login', handler: login },
   // {stage: 1, url: '/waiting', handler: waiting},
-  // { stage: 1, url: '/rules', handler: rules },
-  { stage: 1, url: '/puzzle', handler: puzzle },
-  { stage: 2, url: '/math', handler: math },
+  { stage: 1, url: '/rules', handler: rules },
+  { stage: 2, url: '/puzzle', handler: puzzle },
+  { stage: 3, url: '/math', handler: math },
 ]
 
 const app = new Elysia()
@@ -25,7 +25,7 @@ const app = new Elysia()
   .get("/favicon.ico", () => Bun.file('./public/favicon.ico'))
   .get("/", async ({ set, user, MAC }) => {
     if (!user) {
-      user = { id: MAC, stage: 0, data: new Map() }
+      user = new User({ id: MAC, stage: 0, data: new Map() })
       createUser(user);
     }
     set.redirect = challenges.find(c => c.stage == user!.stage)?.url ?? challenges[0].url

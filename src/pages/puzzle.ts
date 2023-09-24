@@ -1,14 +1,17 @@
 import { Elysia, t } from "elysia"
 import { html } from "@elysiajs/html";
 import { UserPlugin } from "../plugin";
-import { ChallengeParams, GameData } from "../types";
+import { ChallengeParams, StageData } from "../types";
 import { randomUUID } from "crypto";
 import { upsertUser } from "../db";
 
+const DATA_KEY = 'puzzle'
 const puzzle = ({ stage, url }: ChallengeParams) => (app: Elysia) => app
   .use(UserPlugin())
   .use(html())
-  .get(url, ({ html }) => html(`
+  .get(url, ({ user, html }) => {
+    if(!user.data.has(DATA_KEY)) user.data.set(DATA_KEY, { title: '15 Puzzle', start: new Date(), minimum: (1 * 60 * 1000)})
+    return html(`
   <!DOCTYPE html>
   <html lang="en">
   <head>
@@ -85,12 +88,12 @@ const puzzle = ({ stage, url }: ChallengeParams) => (app: Elysia) => app
   </script>
 </body>
 </html>
-`))
+`)
+  })
   .post(url, ({user, set, html, body: { id, tiles } }) => {
     if(tiles.every((t, i) => t == SOLUTION[i])){
       set.headers['HX-Trigger'] = 'success';
-      user.stage = stage +1;
-      upsertUser(user);
+      user.advance(stage, DATA_KEY);
     }
 
     return html(getPuzzle(url, id, tiles))
@@ -100,7 +103,7 @@ const puzzle = ({ stage, url }: ChallengeParams) => (app: Elysia) => app
         set.status = 400
         return 'invalid tiles'
       }
-      const data: GameData = user.data.get('puzzle') ?? { title: '15 Puzzle' }
+      const data = user.data.get(DATA_KEY)!
       const attempts: { id: string, tiles: number[], swaps: number }[] = data.attempts ?? [];
       let attempt = attempts.find(a => a.id == id)
       if (!attempt) {
