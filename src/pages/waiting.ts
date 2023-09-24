@@ -4,17 +4,17 @@ import { UserPlugin } from "../plugin";
 import { ChallengeParams } from "../types";
 
 const RESUME_TIME = new Date(process.env.RESUME_TIME ?? Date.now())
-const DATA_KEY = 'waiting'
-export const waiting = ({ url }: ChallengeParams) => (app: Elysia) => app
+export const waiting = ({ dataKey, name, url }: ChallengeParams) => (app: Elysia) => app
   .use(UserPlugin())
   .use(html())
   .get(url, ({ user, html }) => {
-    if(!user.data.has(DATA_KEY)){
-      user.data.set(DATA_KEY, { title: 'Waiting Room', start: new Date(), minimum: (1 * 60 * 1000), views: 1})
+    if(!user.data.has(dataKey)){
+      user.data.set(dataKey, { start: new Date(), minimum: (1 * 60 * 1000), views: 1 })
+      user.save();
     } else {
-      const data = user.data.get(DATA_KEY)!
+      const data = user.data.get(dataKey)!
       data.views += 1;
-      user.data.set(DATA_KEY, data);
+      user.data.set(dataKey, data);
       user.save();
     }
     return html(`<!DOCTYPE html>
@@ -22,7 +22,7 @@ export const waiting = ({ url }: ChallengeParams) => (app: Elysia) => app
       <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Hang on...</title>
+        <title>${name}</title>
         <script src="/public/htmx@1.9.5.min.js"></script>
         <script src="/public/tailwind@3.3.3.min.js"></script>
         <link rel="icon" href="favicon.ico" type="image/x-icon">
@@ -37,9 +37,9 @@ export const waiting = ({ url }: ChallengeParams) => (app: Elysia) => app
     `)
   })
   .post('/waiting_countdown', ({ user, html }) => {
-    const data = user.data.get(DATA_KEY)!
+    const data = user.data.get(dataKey)!
     data.views += 1;
-    user.data.set(DATA_KEY, data);
+    user.data.set(dataKey, data);
     user.save();
 
     return html(generateCountdownHTML(RESUME_TIME))

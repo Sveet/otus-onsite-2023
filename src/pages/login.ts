@@ -4,10 +4,10 @@ import { upsertUser } from "../db";
 import { UserPlugin } from "../plugin";
 import { ChallengeParams } from "../types";
 
-const login = ({ stage, url }: ChallengeParams) => (app: Elysia) => app
+const login = ({ name, dataKey, stage, url }: ChallengeParams) => (app: Elysia) => app
   .use(UserPlugin())
   .use(html())
-  .get(url, ({ html }) => html(getLoginPage()))
+  .get(url, ({ html }) => html(getLoginPage(name)))
   .post(url, ({ set, body, user }) => {
     const username = (body as any)?.username;
     const password = (body as any)?.password;
@@ -24,12 +24,12 @@ const login = ({ stage, url }: ChallengeParams) => (app: Elysia) => app
   })
 export default login;
 
-const getLoginPage = () => `<!DOCTYPE html>
+const getLoginPage = (title: string) => `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login Page</title>
+  <title>${title}</title>
   <script src="/public/htmx@1.9.5.min.js"></script>
   <script src="/public/tailwind@3.3.3.min.js"></script>
   <link rel="icon" href="favicon.ico" type="image/x-icon">

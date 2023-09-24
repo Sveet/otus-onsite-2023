@@ -2,20 +2,20 @@ import { Elysia, t } from "elysia";
 import { staticPlugin } from "@elysiajs/static"
 import { html } from "@elysiajs/html"
 import { createUser } from "./db";
-import { UserPlugin, StageGuard } from "./plugin";
+import { UserPlugin } from "./plugin";
 import login from './pages/login'
-import math from "./pages/math";
+import quiz from "./pages/quiz";
 import { waiting } from "./pages/waiting";
 import { ChallengeParams, User } from "./types";
 import rules from "./pages/rules";
 import puzzle from "./pages/puzzle";
 
 const challenges: ChallengeParams[] = [
-  { stage: 0, url: '/login', handler: login },
-  // {stage: 1, url: '/waiting', handler: waiting},
-  { stage: 1, url: '/rules', handler: rules },
-  { stage: 2, url: '/puzzle', handler: puzzle },
-  { stage: 3, url: '/math', handler: math },
+  { stage: 0, url: '/login', dataKey: 'login', name: 'Login', handler: login, scoreRenderer: ()=>'' },
+  // {stage: 1, url: '/waiting', dataKey: 'waiting', name: 'Waiting Room', handler: waiting, scoreRenderer: ()=>''},
+  { stage: 1, url: '/rules', dataKey: 'rules', name: 'Rules of Engagement', handler: rules, scoreRenderer: ()=>'' },
+  { stage: 2, url: '/puzzle', dataKey: 'puzzle', name: '15 Puzzle', handler: puzzle, scoreRenderer: ()=>'' },
+  { stage: 3, url: '/quiz', dataKey: 'quiz', name: 'Pop Quiz', handler: quiz, scoreRenderer: ()=>'' },
 ]
 
 const app = new Elysia()
@@ -28,7 +28,7 @@ const app = new Elysia()
       user = new User({ id: MAC, stage: 0, data: new Map() })
       createUser(user);
     }
-    set.redirect = challenges.find(c => c.stage == user!.stage)?.url ?? challenges[0].url
+    set.redirect = challenges.find(c => c.stage == user.stage)?.url ?? challenges[0].url
   })
   .listen(3000);
 

@@ -5,19 +5,21 @@ import { ChallengeParams, StageData } from "../types";
 import { randomUUID } from "crypto";
 import { upsertUser } from "../db";
 
-const DATA_KEY = 'puzzle'
-const puzzle = ({ stage, url }: ChallengeParams) => (app: Elysia) => app
+const puzzle = ({ dataKey, name, stage, url }: ChallengeParams) => (app: Elysia) => app
   .use(UserPlugin())
   .use(html())
   .get(url, ({ user, html }) => {
-    if(!user.data.has(DATA_KEY)) user.data.set(DATA_KEY, { title: '15 Puzzle', start: new Date(), minimum: (1 * 60 * 1000)})
+    if(!user.data.has(dataKey)) {
+      user.data.set(dataKey, { start: new Date(), minimum: (1 * 60 * 1000) })
+      user.save();
+    }
     return html(`
   <!DOCTYPE html>
   <html lang="en">
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>15 Puzzle</title>
+    <title>${name}</title>
     <script src="/public/htmx@1.9.5.min.js"></script>
     <script src="/public/tailwind@3.3.3.min.js"></script>
     <link rel="icon" href="favicon.ico" type="image/x-icon">
@@ -93,7 +95,7 @@ const puzzle = ({ stage, url }: ChallengeParams) => (app: Elysia) => app
   .post(url, ({user, set, html, body: { id, tiles } }) => {
     if(tiles.every((t, i) => t == SOLUTION[i])){
       set.headers['HX-Trigger'] = 'success';
-      user.advance(stage, DATA_KEY);
+      user.advance(stage, dataKey);
     }
 
     return html(getPuzzle(url, id, tiles))
@@ -103,7 +105,7 @@ const puzzle = ({ stage, url }: ChallengeParams) => (app: Elysia) => app
         set.status = 400
         return 'invalid tiles'
       }
-      const data = user.data.get(DATA_KEY)!
+      const data = user.data.get(dataKey)!
       const attempts: { id: string, tiles: number[], swaps: number }[] = data.attempts ?? [];
       let attempt = attempts.find(a => a.id == id)
       if (!attempt) {

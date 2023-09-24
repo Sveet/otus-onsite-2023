@@ -30,7 +30,6 @@ export class User {
 };
 
 export type StageData = {
-  title: string
   start: Date
   end?: Date
   minimum: number
@@ -41,5 +40,8 @@ export type StageData = {
 export type ChallengeParams = {
   stage: number;
   url: string;
+  dataKey: string;
+  name: string;
   handler: (params: ChallengeParams) => (app: Elysia) => Elysia;
+  scoreRenderer: (data: StageData) => string
 }

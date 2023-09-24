@@ -6,6 +6,8 @@ This project was designed to run on a Raspberry Pi 3B.
 
 The server is written using the BETH stack: Bun, ElysiaJS, Turso (SQLite), and HTMX.
 
+Users are tracked by their MAC address. Spoofing can allow multiple sessions or session hijacking attacks.
+
 ## Running Locally
 
 ### Pre-requisites

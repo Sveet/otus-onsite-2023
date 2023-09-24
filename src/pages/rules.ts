@@ -4,8 +4,7 @@ import { UserPlugin } from "../plugin";
 import { ChallengeParams, StageData } from "../types";
 import { swagger } from '@elysiajs/swagger'
 
-const DATA_KEY = 'rules'
-const rules = ({ stage, url }: ChallengeParams) => (app: Elysia) => app
+const rules = ({ name, dataKey, stage, url }: ChallengeParams) => (app: Elysia) => app
   .use(swagger({path: '/api', documentation: {
     info: {
       title: 'Otus CTF 2023',
@@ -15,13 +14,13 @@ const rules = ({ stage, url }: ChallengeParams) => (app: Elysia) => app
   .use(UserPlugin())
   .use(html())
   .get(url, ({ user, html }) => {
-    if(!user.data.has(DATA_KEY)) user.data.set(DATA_KEY, { title: 'Rules of Engagement', start: new Date(), minimum: (3 * 60 * 1000)})
+    if(!user.data.has(dataKey)) user.data.set(dataKey, { title: 'Rules of Engagement', start: new Date(), minimum: (3 * 60 * 1000)})
     return html(`<!DOCTYPE html>
     <html lang="en">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Rules of Engagement</title>
+        <title>${name}</title>
         <script src="/public/htmx@1.9.5.min.js"></script>
         <script src="/public/tailwind@3.3.3.min.js"></script>
         <link rel="icon" href="favicon.ico" type="image/x-icon">
@@ -83,10 +82,10 @@ const rules = ({ stage, url }: ChallengeParams) => (app: Elysia) => app
     `)
   })
   .post(url, ({ set, user, body: { name, email } }) => {
-    const data = user.data.get(DATA_KEY)!;
+    const data = user.data.get(dataKey)!;
     data.name = name;
     data.email = email;
-    user.advance(stage, DATA_KEY);
+    user.advance(stage, dataKey);
 
     set.redirect = '/'
     return { success: true }
