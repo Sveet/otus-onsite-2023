@@ -6,7 +6,7 @@ import { UserPlugin, StageGuard } from "./plugin";
 import login from './pages/login'
 import math from "./pages/math";
 import { waiting } from "./pages/waiting";
-import { ChallengeParams } from "./types";
+import { ChallengeParams, User } from "./types";
 import rules from "./pages/rules";
 
 const challenges: ChallengeParams[] = [
@@ -23,7 +23,7 @@ const app = new Elysia()
   .get("/favicon.ico", () => Bun.file('./public/favicon.ico'))
   .get("/", async ({ set, user, MAC }) => {
     if (!user) {
-      user = { id: MAC, stage: 0 }
+      user = { id: MAC, stage: 0, data: new Map() }
       createUser(user);
     }
     set.redirect = challenges.find(c => c.stage == user!.stage)?.url ?? challenges[0].url

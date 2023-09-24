@@ -1,5 +1,6 @@
 import Elysia from "elysia";
 import { getUser } from "./db";
+import { User } from "./types";
 
 export const MACPlugin = () => {
   return new Elysia({
@@ -23,9 +24,8 @@ export const UserPlugin = () => {
   .derive(async ({MAC}) => {
     console.log(`MAC: ${MAC}`);
     const user = getUser(MAC);
-    console.log(`user: ${JSON.stringify(user)}`);
     return {
-      user
+      user: user as User
     }
   })
 }

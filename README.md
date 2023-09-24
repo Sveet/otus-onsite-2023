@@ -158,7 +158,7 @@ Public Access
 ```
 interface=wlan0
 driver=nl80211
-ssid=Otus CTF 2023
+ssid=Otus After School Learning
 hw_mode=g
 channel=6
 auth_algs=1

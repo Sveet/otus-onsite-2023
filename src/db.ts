@@ -1,5 +1,5 @@
 import { Database } from 'bun:sqlite';
-import { User } from './types';
+import { GameData, User } from './types';
 
 const db = new Database('otus-onsite-2023.db');
 
@@ -8,7 +8,8 @@ db.exec(`
     id TEXT PRIMARY KEY,
     stage INTEGER NOT NULL DEFAULT 0,
     created DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updated DATETIME DEFAULT CURRENT_TIMESTAMP
+    updated DATETIME DEFAULT CURRENT_TIMESTAMP,
+    data TEXT
   );
 `);
 
@@ -21,6 +22,7 @@ export function getUser(id: string): User | undefined {
       stage: user.stage,
       created: new Date(user.created!),
       updated: new Date(user.updated!),
+      data: deserializeData(user.data as unknown as string)
     };
   }
   return undefined;
@@ -34,27 +36,28 @@ export function getAllUsers(): User[] {
     stage: user.stage,
     created: new Date(user.created!),
     updated: new Date(user.updated!),
+    data: deserializeData(user.data as unknown as string)
   }));
 }
 
 export function createUser(user: Omit<User, 'created' | 'updated'>): void {
-  const stmt = db.prepare("INSERT INTO users (id, stage) VALUES (?, ?)");
-  stmt.run(user.id, user.stage);
+  const stmt = db.prepare("INSERT INTO users (id, stage, data) VALUES (?, ?, ?)");
+  stmt.run(user.id, user.stage, serializeData(user.data));
 }
 
 export function updateUser(user: User): void {
-  const stmt = db.prepare("UPDATE users SET stage = ?, updated = CURRENT_TIMESTAMP WHERE id = ?");
-  stmt.run(user.stage, user.id);
+  const stmt = db.prepare("UPDATE users SET stage = ?, data = ?, updated = CURRENT_TIMESTAMP WHERE id = ?");
+  stmt.run(user.stage, serializeData(user.data), user.id);
 }
 
 export function upsertUser(user: User): void {
   user.created ??= new Date();
   user.updated ??= new Date();
   const stmt = db.prepare(`
-      INSERT INTO users (id, stage, created, updated) VALUES (?, ?, ?, ?)
-      ON CONFLICT(id) DO UPDATE SET stage = excluded.stage, updated = CURRENT_TIMESTAMP
+    INSERT INTO users (id, stage, data) VALUES (?, ?, ?)
+    ON CONFLICT(id) DO UPDATE SET stage = excluded.stage, data = excluded.data, updated = CURRENT_TIMESTAMP
   `);
-  stmt.run(user.id, user.stage, user.created.toISOString(), user.updated.toISOString());
+  stmt.run(user.id, user.stage, serializeData(user.data));
 }
 
 
@@ -62,3 +65,7 @@ export function deleteUser(id: string): void {
   const stmt = db.prepare("DELETE FROM users WHERE id = ?");
   stmt.run(id);
 }
+
+
+const serializeData = (data?: Map<string, GameData>) => JSON.stringify(Array.from(data?.entries() ?? []))
+const deserializeData = (data?: string) => new Map<string, GameData>(JSON.parse(data ?? '[]'))
