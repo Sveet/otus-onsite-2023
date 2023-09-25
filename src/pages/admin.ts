@@ -40,7 +40,7 @@ const admin = (url: string) => (app: Elysia) => app
   }, {
     beforeHandle: ({ MAC, set }) => {
       if (MAC != "" && !ALLOWED_MACs.includes(MAC)) {
-        console.error(`Attempt to access admin panel from ${MAC}`);
+        console.error(`Attempt to access admin panel from ${MAC} ${JSON.stringify(ALLOWED_MACs)}`);
         set.redirect = '/'
         return 'redirected'
       }
