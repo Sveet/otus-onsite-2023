@@ -22,9 +22,7 @@ const admin = (url: string) => (app: Elysia) => app
     <link rel="icon" href="favicon.ico" type="image/x-icon">
   </head>
   <body class="bg-gray-200 h-screen flex justify-center items-center">
-    <div class="text-center bg-white p-8 rounded-lg shadow-md">
-      ${await adminPanel()}
-    </div>
+    ${await adminPanel()}
     <script>
       function playSuccess() {
         const audio = new Audio('public/success.wav');
@@ -78,9 +76,7 @@ const adminPanel = async () => {
     ${temp ? `<div class="mt-4 border-2 border-blue text-lg">
       ${temp}
     </div>` : ''}
-    <div>
-      ${userPanels.join('')}
-    </div>
+    ${userPanels.join('')}
   `
 }
 
