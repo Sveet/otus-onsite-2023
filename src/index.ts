@@ -12,11 +12,11 @@ import rules from "./pages/rules";
 import puzzle from "./pages/puzzle";
 
 const challenges: ChallengeParams[] = [
-  { stage: 0, minimumTime: (3 * 60 * 1000), url: '/login', dataKey: 'login', name: 'Login', handler: login, scoreRenderer: ()=>'' },
-  {stage: 1, minimumTime: 0, url: '/waiting', dataKey: 'waiting', name: 'Waiting Room', handler: waiting, scoreRenderer: ()=>''},
-  // { stage: 1, minimumTime: (3 * 60 * 1000), url: '/rules', dataKey: 'rules', name: 'Rules of Engagement', handler: rules, scoreRenderer: ()=>'' },
-  { stage: 2, minimumTime: (3 * 60 * 1000), url: '/puzzle', dataKey: 'puzzle', name: '15 Puzzle', handler: puzzle, scoreRenderer: ()=>'' },
-  { stage: 3, minimumTime: (3 * 60 * 1000), url: '/quiz', dataKey: 'quiz', name: 'Pop Quiz', handler: quiz, scoreRenderer: ()=>'' },
+  { stage: 0, minimumTime: (3 * 60 * 1000), url: '/login', dataKey: 'login', name: 'Login', handler: login, scoreRenderer: () => '' },
+  { stage: 1, minimumTime: (3 * 60 * 1000), url: '/rules', dataKey: 'rules', name: 'Rules of Engagement', handler: rules, scoreRenderer: () => '' },
+  { stage: 2, minimumTime: (3 * 60 * 1000), url: '/puzzle', dataKey: 'puzzle', name: '15 Puzzle', handler: puzzle, scoreRenderer: () => '' },
+  { stage: 3, minimumTime: 0, url: '/waiting', dataKey: 'waiting', name: 'Waiting Room', handler: waiting, scoreRenderer: () => '' },
+  // { stage: 3, minimumTime: (3 * 60 * 1000), url: '/quiz', dataKey: 'quiz', name: 'Pop Quiz', handler: quiz, scoreRenderer: () => '' },
 ]
 
 const app = new Elysia()
@@ -45,7 +45,7 @@ challenges.map(c => {
 })
 
 app.use(admin('/admin'));
-app.all('*', ({set})=> set.redirect = '/');
+app.all('*', ({ set }) => set.redirect = '/');
 
 console.log(
   `Otus CTF 2023 is running at ${app.server?.hostname}:${app.server?.port}`
