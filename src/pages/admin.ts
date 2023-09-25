@@ -40,7 +40,7 @@ const admin = (url: string) => (app: Elysia) => app
   }, {
     beforeHandle: ({ MAC, set }) => {
       if (MAC != "" && !ALLOWED_MACs.includes(MAC.trim())) {
-        console.error(`Attempt to access admin panel from ${MAC} ${JSON.stringify(ALLOWED_MACs)}`);
+        console.error(`Attempt to access admin panel from ${MAC}`);
         set.redirect = '/'
         return 'redirected'
       }
@@ -50,7 +50,7 @@ const admin = (url: string) => (app: Elysia) => app
     async ({ html }) => html(await adminPanel()),
     {
       beforeHandle: ({ MAC, set }) => {
-        if (MAC != "" && !ALLOWED_MACs.includes(MAC)) {
+        if (MAC != "" && !ALLOWED_MACs.includes(MAC.trim())) {
           console.error(`Attempt to access admin panel from ${MAC}`);
           set.redirect = '/'
           return 'redirected'
@@ -75,7 +75,7 @@ const adminPanel = async () => {
 </div>
   `)
   return `
-    ${temp ? `<div class="border-2 border-blue text-lg">
+    ${temp ? `<div class="mt-4 border-2 border-blue text-lg">
       ${temp}
     </div>` : ''}
     <div>
