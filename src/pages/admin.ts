@@ -5,7 +5,7 @@ import { ChallengeParams, StageData } from "../types";
 import { getAllUsers } from "../db";
 const ALLOWED_MACs = [
   '88:66:5a:45:65:53',
-  '82:52:63:fb:65:5e'
+  'a2:ae:25:9f:1b:1a'
 ]
 const admin = (url: string) => (app: Elysia) => app
   .use(UserPlugin())
