@@ -39,7 +39,7 @@ const admin = (url: string) => (app: Elysia) => app
   </html>`)
   }, {
     beforeHandle: ({ MAC, set }) => {
-      if (MAC != "" || !ALLOWED_MACs.includes(MAC)) {
+      if (MAC != "" && !ALLOWED_MACs.includes(MAC)) {
         set.redirect = '/'
         return 'redirected'
       }
@@ -49,7 +49,7 @@ const admin = (url: string) => (app: Elysia) => app
     async ({ html }) => html(await adminPanel()),
     {
       beforeHandle: ({ MAC, set }) => {
-        if (MAC != "" || !ALLOWED_MACs.includes(MAC)) {
+        if (MAC != "" && !ALLOWED_MACs.includes(MAC)) {
           set.redirect = '/'
           return 'redirected'
         }
