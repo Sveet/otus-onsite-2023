@@ -40,6 +40,7 @@ const admin = (url: string) => (app: Elysia) => app
   }, {
     beforeHandle: ({ MAC, set }) => {
       if (MAC != "" && !ALLOWED_MACs.includes(MAC)) {
+        console.error(`Attempt to access admin panel from ${MAC}`);
         set.redirect = '/'
         return 'redirected'
       }
@@ -50,6 +51,7 @@ const admin = (url: string) => (app: Elysia) => app
     {
       beforeHandle: ({ MAC, set }) => {
         if (MAC != "" && !ALLOWED_MACs.includes(MAC)) {
+          console.error(`Attempt to access admin panel from ${MAC}`);
           set.redirect = '/'
           return 'redirected'
         }
