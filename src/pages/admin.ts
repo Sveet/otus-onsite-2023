@@ -3,7 +3,10 @@ import { html } from "@elysiajs/html";
 import { UserPlugin } from "../plugin";
 import { ChallengeParams, StageData } from "../types";
 import { getAllUsers } from "../db";
-
+const ALLOWED_MACs = [
+  '88:66:5a:45:65:53',
+  '82:52:63:fb:65:5e'
+]
 const admin = (url: string) => (app: Elysia) => app
   .use(UserPlugin())
   .use(html())
@@ -36,7 +39,7 @@ const admin = (url: string) => (app: Elysia) => app
   </html>`)
   }, {
     beforeHandle: ({ MAC, set }) => {
-      if (MAC != "") {
+      if (MAC != "" || !ALLOWED_MACs.includes(MAC)) {
         set.redirect = '/'
         return 'redirected'
       }
@@ -46,7 +49,7 @@ const admin = (url: string) => (app: Elysia) => app
     async ({ html }) => html(await adminPanel()),
     {
       beforeHandle: ({ MAC, set }) => {
-        if (MAC != "") {
+        if (MAC != "" || !ALLOWED_MACs.includes(MAC)) {
           set.redirect = '/'
           return 'redirected'
         }
