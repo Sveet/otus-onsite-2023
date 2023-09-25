@@ -160,7 +160,7 @@ Public Access
 ```
 interface=wlan0
 driver=nl80211
-ssid=Otus After School Learning
+ssid=Otus Arcane Playground
 hw_mode=g
 channel=6
 auth_algs=1
