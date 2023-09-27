@@ -16,13 +16,12 @@ const quiz = ({ name, stage, url, dataKey }: ChallengeParams) => (app: Elysia) =
       }
     }
   }))
-  .get(url, ({ set, user, html }) => {
+  .get(url, ({ set, user }) => {
     if (!user.data.has(dataKey)) {
       user.data.set(dataKey, { start: new Date() })
       user.save();
     }
-    set.headers["HX-Replace-Url"] = `${url}/0`
-    return html(getQuiz(name, url))
+    set.redirect = `${url}/0`
   })
   .get(`${url}/:index`, ({user, html, params: {index}})=>{
     if (!user.data.has(dataKey)) {
@@ -31,8 +30,8 @@ const quiz = ({ name, stage, url, dataKey }: ChallengeParams) => (app: Elysia) =
     }
     return html(getQuiz(name, url, undefined, +index));
   })
-  .post(url, ({ set, user, html, body: { id, index, answer } }) => {
-    index = Number(index);
+  .post(`${url}/:i`, ({ set, user, html, params: {i}, body: { id, answer } }) => {
+    const index = Number(i);
     const data = user.data.get(dataKey) ?? { start: new Date() }
     data.quizzes ??= [];
     let quiz: Quiz = data.quizzes.find((q: Quiz) => q.id == id);
@@ -42,7 +41,7 @@ const quiz = ({ name, stage, url, dataKey }: ChallengeParams) => (app: Elysia) =
     }
 
     const prevAnswer = quiz.answers[index]
-    const quizAnswer = { answer, isCorrect: answer == quizItems[index].correctAnswer };
+    const quizAnswer = { answer, isCorrect: answer == (quizItems[index] ?? secretQuizItem).correctAnswer };
     if (!prevAnswer) {
       quiz.answers[index] = quizAnswer;
     } else {
@@ -58,6 +57,12 @@ const quiz = ({ name, stage, url, dataKey }: ChallengeParams) => (app: Elysia) =
     user.data.set(dataKey, data);
     user.save();
 
+    if(isNaN(index) && answer == secretQuizItem.correctAnswer){
+      user.advance(stage, dataKey);
+      set.redirect = '/'
+      return {success: true}
+    }
+
     if (index >= quizItems.length - 1) {
       set.headers["HX-Replace-Url"] = `${url}`
       return html(getQuizComplete(quiz))
@@ -68,7 +73,6 @@ const quiz = ({ name, stage, url, dataKey }: ChallengeParams) => (app: Elysia) =
   }, {
     body: t.Object({
       id: t.String(),
-      index: t.Numeric(),
       answer: t.String(),
     }),
   })
@@ -87,9 +91,9 @@ type QuizItem = {
   choices: string[];
 }
 const secretQuizItem: QuizItem = {
-  question: "",
-  correctAnswer: "asdasdasd",
-  choices: ['']
+  question: "Flag: SHA1(BAD)",
+  correctAnswer: "ab2de0ad5bffd731b81d29798bb491ff96e292b7",
+  choices: ['escapable-sliding', 'dealmaker-payment', 'elite-voucher', 'promenade-chaffing']
 }
 const quizItems: QuizItem[] = [
   {
@@ -194,7 +198,8 @@ const quizItems: QuizItem[] = [
   }
 ]
 const getQuizItem = (url: string, id: string = randomUUID(), index: number = 0, includePost = true) => {
-  const quizItem = quizItems[index];
+  let quizItem = quizItems[index];
+  if(!quizItem) quizItem = secretQuizItem;
   return `
   <form class="text-center bg-white p-8 rounded-lg shadow-md w-11/12 h-3/4 flex flex-col">
     <!-- Question content -->
@@ -202,19 +207,19 @@ const getQuizItem = (url: string, id: string = randomUUID(), index: number = 0, 
     
     <!-- Answers content -->
     <div class="grid grid-cols-2 gap-4 flex-grow flex-shrink h-2/3">
-      <button type="submit" class="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 flex justify-between items-center text-xl" ${includePost ? `hx-vals='js:{"answer": "a", "id": "${id}", "index": ${index}}' hx-post="${url}" hx-swap="outerHTML" hx-target="closest form"` : ''}>
+      <button type="submit" class="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 flex justify-between items-center text-xl" ${includePost ? `hx-vals='js:{"answer": "a", "id": "${id}"}' hx-post="${url}/${index}" hx-swap="outerHTML" hx-target="closest form"` : ''}>
         <span class="font-bold ml-2">A</span>
         <span class="text-center flex-grow">${quizItem.choices[0]}</span>
       </button>
-      <button type="submit" class="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 flex justify-between items-center text-xl" ${includePost ? `hx-vals='js:{"answer": "b", "id": "${id}", "index": ${index}}' hx-post="${url}" hx-swap="outerHTML" hx-target="closest form"` : ''}>
+      <button type="submit" class="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 flex justify-between items-center text-xl" ${includePost ? `hx-vals='js:{"answer": "b", "id": "${id}"}' hx-post="${url}/${index}" hx-swap="outerHTML" hx-target="closest form"` : ''}>
         <span class="font-bold ml-2">B</span>
         <span class="text-center flex-grow">${quizItem.choices[1]}</span>
       </button>
-      <button type="submit" class="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 flex justify-between items-center text-xl" ${includePost ? `hx-vals='js:{"answer": "c", "id": "${id}", "index": ${index}}' hx-post="${url}" hx-swap="outerHTML" hx-target="closest form"` : ''}>
+      <button type="submit" class="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 flex justify-between items-center text-xl" ${includePost ? `hx-vals='js:{"answer": "c", "id": "${id}"}' hx-post="${url}/${index}" hx-swap="outerHTML" hx-target="closest form"` : ''}>
         <span class="font-bold ml-2">C</span>
         <span class="text-center flex-grow">${quizItem.choices[2]}</span>
       </button>
-      <button type="submit" class="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 flex justify-between items-center text-xl" ${includePost ? `hx-vals='js:{"answer": "d", "id": "${id}", "index": ${index}}' hx-post="${url}" hx-swap="outerHTML" hx-target="closest form"` : ''}>
+      <button type="submit" class="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 flex justify-between items-center text-xl" ${includePost ? `hx-vals='js:{"answer": "d", "id": "${id}"}' hx-post="${url}/${index}" hx-swap="outerHTML" hx-target="closest form"` : ''}>
         <span class="font-bold ml-2">D</span>
         <span class="text-center flex-grow">${quizItem.choices[3]}</span>
       </button>
@@ -228,7 +233,7 @@ const getQuizComplete = (quiz: Quiz) => `<div class="text-center bg-white p-8 ro
 <button class="mb-4 p-2 text-center text-white hover:bg-green-600 bg-green-500 rounded-lg border-2" onClick="location.reload()">Play Again?</button>
 
 <!-- Score -->
-<p class="text-2xl mb-6">Score: ${quiz.answers.filter(a => Array.isArray(a) ? a[a.length-1].isCorrect : a.isCorrect).length}/${quizItems.length}</p>
+<p class="text-2xl mb-6">Score: ${quiz.answers.filter(a => Array.isArray(a) ? a[a.length-1].isCorrect : a?.isCorrect ?? false).length}/${quizItems.length}</p>
 
 <!-- Quiz results -->
 <div class="grid grid-cols-5 gap-4 mb-4 w-full">
@@ -239,10 +244,10 @@ const getQuizComplete = (quiz: Quiz) => `<div class="text-center bg-white p-8 ro
 
 const renderAnswer = (index: number, a: QuizAnswer | QuizAnswer[]) => {
   const lastAnswer = Array.isArray(a) ? a[a.length - 1] : a;
-  return lastAnswer.isCorrect ?
+  return lastAnswer?.isCorrect ?
     `<div class="bg-green-500 text-white p-2 rounded-full text-center w-10 h-10 flex items-center justify-center">${lastAnswer.answer}</div>`
     : `<div class="bg-red-500 text-white p-2 rounded-full text-center w-10 h-10 flex items-center justify-center relative group">
-    ${lastAnswer.answer}
+    ${lastAnswer.answer ?? '?'}
     <span class="absolute top-0 left-0 w-full h-full bg-green-500 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100">${quizItems[index]?.correctAnswer}</span>
   </div>`;
 }

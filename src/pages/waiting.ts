@@ -3,7 +3,7 @@ import { html } from "@elysiajs/html";
 import { UserPlugin } from "../plugin";
 import { ChallengeParams } from "../types";
 
-const RESUME_TIME = new Date('2023-09-26 14:00')
+const RESUME_TIME = new Date('2023-09-27 12:00')
 export const waiting = ({ dataKey, name, url }: ChallengeParams) => (app: Elysia) => app
   .use(UserPlugin())
   .use(html())
