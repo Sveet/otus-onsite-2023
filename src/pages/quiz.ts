@@ -16,38 +16,22 @@ const quiz = ({ name, stage, url, dataKey }: ChallengeParams) => (app: Elysia) =
       }
     }
   }))
-  .get(url, ({ user, html }) => {
+  .get(url, ({ set, user, html }) => {
     if (!user.data.has(dataKey)) {
       user.data.set(dataKey, { start: new Date() })
       user.save();
     }
-    return html(`<!DOCTYPE html>
-    <html lang="en">
-    <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>${name}</title>
-      <script src="/public/htmx@1.9.5.min.js"></script>
-      <script src="/public/tailwind@3.3.3.min.js"></script>
-      <link rel="icon" href="favicon.ico" type="image/x-icon">
-    </head>
-    <body class="bg-gray-200 h-screen flex justify-center items-center relative">
-      ${getQuizItem(url)}
-      <script>
-        function playSuccess() {
-          const audio = new Audio('public/success.wav');
-          audio.play();
-        }
-        document.body.addEventListener('success', (e)=>{
-          playSuccess();
-          setTimeout(()=>location.href = '/', 1500);
-        })
-      </script>
-    </body>
-    </html>
-    `)
+    set.headers["HX-Location"] = JSON.stringify({"path": `${url}/0`})
+    return html(getQuiz(name, url))
   })
-  .post(url, ({ user, html, body: { id, index, answer } }) => {
+  .get(`${url}/:index`, ({user, html, params: {index}})=>{
+    if (!user.data.has(dataKey)) {
+      user.data.set(dataKey, { start: new Date() })
+      user.save();
+    }
+    return html(getQuiz(name, url, undefined, +index));
+  })
+  .post(url, ({ set, user, html, body: { id, index, answer } }) => {
     index = Number(index);
     const data = user.data.get(dataKey) ?? { start: new Date() }
     data.quizzes ??= [];
@@ -78,6 +62,7 @@ const quiz = ({ name, stage, url, dataKey }: ChallengeParams) => (app: Elysia) =
       return html(getQuizComplete(quiz))
     }
 
+    set.headers["HX-Location"] = JSON.stringify({"path": `${url}/${index +1}`})
     return html(getQuizItem(url, id, index + 1));
   }, {
     body: t.Object({
@@ -209,7 +194,6 @@ const quizItems: QuizItem[] = [
 ]
 const getQuizItem = (url: string, id: string = randomUUID(), index: number = 0, includePost = true) => {
   const quizItem = quizItems[index];
-  console.log(`quizItem typeof index ${typeof index} ${index} ${JSON.stringify(quizItem)} from ${JSON.stringify(quizItems)}`)
   return `
   <form class="text-center bg-white p-8 rounded-lg shadow-md w-11/12 h-3/4 flex flex-col">
     <!-- Question content -->
@@ -254,7 +238,6 @@ const getQuizComplete = (quiz: Quiz) => `<div class="text-center bg-white p-8 ro
 
 const renderAnswer = (index: number, a: QuizAnswer | QuizAnswer[]) => {
   const lastAnswer = Array.isArray(a) ? a[a.length - 1] : a;
-  console.log(`renderAnswer ${index} lastAnswer ${JSON.stringify(lastAnswer)} from ${JSON.stringify(a)}`)
   return lastAnswer.isCorrect ?
     `<div class="bg-green-500 text-white p-2 rounded-full text-center w-10 h-10 flex items-center justify-center">${lastAnswer.answer}</div>`
     : `<div class="bg-red-500 text-white p-2 rounded-full text-center w-10 h-10 flex items-center justify-center relative group">
@@ -262,5 +245,31 @@ const renderAnswer = (index: number, a: QuizAnswer | QuizAnswer[]) => {
     <span class="absolute top-0 left-0 w-full h-full bg-green-500 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100">${quizItems[index]?.correctAnswer}</span>
   </div>`;
 }
+
+const getQuiz = (name: string, url: string, id?: string, index?: number) => `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${name}</title>
+  <script src="/public/htmx@1.9.5.min.js"></script>
+  <script src="/public/tailwind@3.3.3.min.js"></script>
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
+</head>
+<body class="bg-gray-200 h-screen flex justify-center items-center relative">
+  ${getQuizItem(url, id, index)}
+  <script>
+    function playSuccess() {
+      const audio = new Audio('public/success.wav');
+      audio.play();
+    }
+    document.body.addEventListener('success', (e)=>{
+      playSuccess();
+      setTimeout(()=>location.href = '/', 1500);
+    })
+  </script>
+</body>
+</html>
+`
 
 export default quiz;
