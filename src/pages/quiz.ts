@@ -21,7 +21,7 @@ const quiz = ({ name, stage, url, dataKey }: ChallengeParams) => (app: Elysia) =
       user.data.set(dataKey, { start: new Date() })
       user.save();
     }
-    set.headers["HX-Location"] = JSON.stringify({"path": `${url}/0`})
+    set.headers["HX-Replace-Url"] = `${url}/0`
     return html(getQuiz(name, url))
   })
   .get(`${url}/:index`, ({user, html, params: {index}})=>{
@@ -59,10 +59,11 @@ const quiz = ({ name, stage, url, dataKey }: ChallengeParams) => (app: Elysia) =
     user.save();
 
     if (index >= quizItems.length - 1) {
+      set.headers["HX-Replace-Url"] = `${url}`
       return html(getQuizComplete(quiz))
     }
 
-    set.headers["HX-Location"] = JSON.stringify({"path": `${url}/${index +1}`})
+    set.headers["HX-Replace-Url"] = `${url}/${index +1}`
     return html(getQuizItem(url, id, index + 1));
   }, {
     body: t.Object({
