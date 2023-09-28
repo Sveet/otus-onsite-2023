@@ -10,6 +10,23 @@ const ALLOWED_MACs = [
 const admin = (url: string) => (app: Elysia) => app
   .use(UserPlugin())
   .use(html())
+  .get(`${url}/json`, async () => {
+    const temp = await temp_C();
+    const users = getAllUsers();
+    return {
+      temp,
+      users
+    }
+  },
+  {
+    beforeHandle: ({ MAC, set }) => {
+      if (MAC != "" && !ALLOWED_MACs.includes(MAC.trim())) {
+        console.error(`Attempt to access admin panel from ${MAC}`);
+        set.redirect = '/'
+        return 'redirected'
+      }
+    }
+  })
   .get(url, async ({ html }) => {
     return html(`<!DOCTYPE html>
   <html lang="en">
