@@ -10,7 +10,15 @@ Users are tracked by their MAC address. Spoofing can allow multiple sessions or 
 
 ## Running Locally
 
-### Pre-requisites
+### Dockerfile
+Helper scripts are in the package.json
+
+```bash
+npm run docker-build    // build
+npm run docker-run      // start the container
+```
+
+### Using `bun`
 
 Bun should be installed. On MacOS, this can be done via `brew install bun`. See https://bun.sh/ for more information.
 
