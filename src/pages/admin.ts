@@ -17,6 +17,7 @@ const admin = (url: string) => (app: Elysia) => app
       temp,
       users: users.map((u) => {
         (u.data as any) = JSON.stringify(Array.from(u.data.entries()))
+        return u;
       })
     }
   },
